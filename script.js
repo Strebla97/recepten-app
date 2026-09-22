@@ -131,17 +131,20 @@ async function handleLogout() {
 function updateAccountUI(session) {
   const loggedOutHeader = document.getElementById('accountHeaderLoggedOut');
   const loggedInHeader = document.getElementById('accountHeaderLoggedIn');
-  const logoutGroup = document.getElementById('logoutGroup');
+  const logoutIconBtn = document.getElementById('logoutIconBtn');
+  const settingsSpacer = document.getElementById('settingsSpacer');
   if (session && session.user) {
     if (loggedOutHeader) loggedOutHeader.style.display = 'none';
     if (loggedInHeader) loggedInHeader.style.display = 'flex';
-    if (logoutGroup) logoutGroup.style.display = 'block';
+    if (logoutIconBtn) logoutIconBtn.style.display = 'flex';
+    if (settingsSpacer) settingsSpacer.style.display = 'none';
     const nameLabel = document.getElementById('accountHeaderName');
     if (nameLabel) nameLabel.textContent = (session.user.user_metadata && session.user.user_metadata.name) || session.user.email;
   } else {
     if (loggedOutHeader) loggedOutHeader.style.display = 'flex';
     if (loggedInHeader) loggedInHeader.style.display = 'none';
-    if (logoutGroup) logoutGroup.style.display = 'none';
+    if (logoutIconBtn) logoutIconBtn.style.display = 'none';
+    if (settingsSpacer) settingsSpacer.style.display = 'inline-block';
   }
 }
 
@@ -176,9 +179,79 @@ async function initCloudSync(userId) {
     }
   } catch (e) { /* keep the local cache we already loaded */ }
   ensureCategoryOrder();
+  try {
+    const settingsDoc = await db.collection('meta').doc('settings').get();
+    const sdata = settingsDoc && settingsDoc.data ? settingsDoc.data() : null;
+    if (sdata) applyCloudSettings(sdata);
+  } catch (e) { /* keep the local cache we already loaded */ }
   renderHome();
   updateShopBadge();
   if (currentView === 'shop') renderShop();
+}
+
+// Gathers every per-device preference (theme, weekstart, view/sort mode,
+// supermarket categories/order) into one doc so logging into a different
+// account swaps in that account's own settings instead of this device's.
+function getSettingsSnapshot() {
+  return {
+    theme: themePref,
+    weekStart: weekStart,
+    viewMode: viewMode,
+    sortMode: sortMode,
+    shopCategoryOrder: shopCategoryOrder,
+    shopStores: shopStores,
+    activeShopStoreId: activeShopStoreId,
+    shopSortMode: shopSortMode
+  };
+}
+
+function syncSettingsToCloud() {
+  if (!db) return;
+  db.collection('meta').doc('settings').set(getSettingsSnapshot()).catch(() => {});
+}
+
+function applyCloudSettings(data) {
+  if (typeof data.theme === 'string') {
+    themePref = data.theme;
+    safeSet('rb_theme', themePref);
+    applyTheme(themePref);
+    const themeSel = document.getElementById('themeSelect');
+    if (themeSel) themeSel.value = themePref;
+  }
+  if (typeof data.weekStart === 'number') {
+    weekStart = data.weekStart;
+    safeSet('rb_weekstart', weekStart);
+    const wsSel = document.getElementById('weekStartSelect');
+    if (wsSel) wsSel.value = String(weekStart);
+  }
+  if (typeof data.viewMode === 'string') {
+    viewMode = data.viewMode;
+    safeSet('rb_viewmode', viewMode);
+    updateViewModeUI();
+  }
+  if (typeof data.sortMode === 'string') {
+    sortMode = data.sortMode;
+    safeSet('rb_sortmode', sortMode);
+  }
+  if (Array.isArray(data.shopCategoryOrder) && data.shopCategoryOrder.length) {
+    shopCategoryOrder.length = 0;
+    shopCategoryOrder.push(...data.shopCategoryOrder);
+    safeSet('rb_shopcatorder', shopCategoryOrder);
+  }
+  if (Array.isArray(data.shopStores)) {
+    shopStores.length = 0;
+    shopStores.push(...data.shopStores);
+    safeSet('rb_shopstores', shopStores);
+  }
+  if (data.activeShopStoreId !== undefined) {
+    activeShopStoreId = data.activeShopStoreId;
+    safeSet('rb_active_shopstore', activeShopStoreId);
+  }
+  if (typeof data.shopSortMode === 'string') {
+    shopSortMode = data.shopSortMode;
+    safeSet('rb_shop_sortmode', shopSortMode);
+  }
+  if (currentView === 'planner') renderPlanner();
 }
 
 supa.auth.onAuthStateChange((event, session) => {
@@ -622,6 +695,7 @@ function setWeekStart(value) {
   weekStart = parseInt(value, 10);
   safeSet('rb_weekstart', weekStart);
   if (currentView === 'planner') renderPlanner();
+  syncSettingsToCloud();
 }
 
 function renderPlanner() {
@@ -824,6 +898,7 @@ function setViewMode(mode) {
   safeSet('rb_viewmode', mode);
   closeAllDropdowns();
   renderHome();
+  syncSettingsToCloud();
 }
 
 function updateViewModeUI() {
@@ -862,6 +937,7 @@ function setSortMode(mode) {
   safeSet('rb_sortmode', mode);
   renderFilterMenu();
   renderHome();
+  syncSettingsToCloud();
 }
 
 function toggleLabelFilter(tag, btn) {
@@ -1794,10 +1870,10 @@ let activeShopStoreId = safeGet('rb_active_shopstore', null);
 let shopSortMode = safeGet('rb_shop_sortmode', 'category');
 let editingShopStoreId = null;
 
-function saveShopCategoryOrder() { safeSet('rb_shopcatorder', shopCategoryOrder); }
-function saveShopStores() { safeSet('rb_shopstores', shopStores); }
-function saveActiveShopStore() { safeSet('rb_active_shopstore', activeShopStoreId); }
-function saveShopSortMode() { safeSet('rb_shop_sortmode', shopSortMode); }
+function saveShopCategoryOrder() { safeSet('rb_shopcatorder', shopCategoryOrder); syncSettingsToCloud(); }
+function saveShopStores() { safeSet('rb_shopstores', shopStores); syncSettingsToCloud(); }
+function saveActiveShopStore() { safeSet('rb_active_shopstore', activeShopStoreId); syncSettingsToCloud(); }
+function saveShopSortMode() { safeSet('rb_shop_sortmode', shopSortMode); syncSettingsToCloud(); }
 
 const SHOP_CATEGORY_DB = [
   { category: 'Groente & Fruit', keywords: ['aardappel', 'prei', 'ui', 'knoflook', 'tomaat', 'wortel', 'paprika', 'komkommer', 'sla', 'spinazie', 'courgette', 'broccoli', 'bloemkool', 'banaan', 'citroen', 'limoen', 'champignon', 'avocado', 'appel', 'bes', 'venkel', 'selderij', 'peer', 'druif', 'sinaasappel', 'framboos', 'aardbei'] },
@@ -2063,6 +2139,7 @@ function setTheme(theme) {
   themePref = theme;
   safeSet('rb_theme', theme);
   applyTheme(theme);
+  syncSettingsToCloud();
 }
 
 /* ---------------- Help ---------------- */
