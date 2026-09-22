@@ -17,6 +17,143 @@ let categoryOrder = safeGet('rb_categoryOrder', null) || DEFAULT_CATEGORIES.slic
 let units = safeGet('rb_units', null) || JSON.parse(JSON.stringify(DEFAULT_UNITS));
 let db = null;
 
+/* ---------------- Cloud account (Supabase) ---------------- */
+const SUPABASE_URL = 'https://crelkghrjghfjsjkaant.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNyZWxrZ2hyamdoZmpzamthYW50Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTAxMDEyMzYsImV4cCI6MjEwNTY3NzIzNn0.UFwhH5Qkuw4xlosn87fEXmJnBkEH8ESkNYPV2Lsi_os';
+const supa = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+let authMode = 'login';
+
+// Wraps a Supabase table as a Firestore-like collection() so the rest of the
+// data layer below (written for window.claude.use('db')) needs no changes.
+function makeSupabaseDb(userId) {
+  return {
+    collection(name) {
+      return {
+        async get() {
+          const { data, error } = await supa.from('docs').select('doc_id,data').eq('user_id', userId).eq('collection', name);
+          if (error) throw error;
+          return { docs: (data || []).map(row => ({ id: row.doc_id, data: () => row.data })) };
+        },
+        doc(id) {
+          return {
+            async get() {
+              const { data, error } = await supa.from('docs').select('data').eq('user_id', userId).eq('collection', name).eq('doc_id', id).maybeSingle();
+              if (error) throw error;
+              return { data: () => (data ? data.data : null) };
+            },
+            async set(value) {
+              const { error } = await supa.from('docs').upsert({ user_id: userId, collection: name, doc_id: id, data: value, updated_at: new Date().toISOString() });
+              if (error) throw error;
+            },
+            async delete() {
+              const { error } = await supa.from('docs').delete().eq('user_id', userId).eq('collection', name).eq('doc_id', id);
+              if (error) throw error;
+            }
+          };
+        }
+      };
+    }
+  };
+}
+
+function toggleAuthMode() {
+  authMode = authMode === 'login' ? 'signup' : 'login';
+  document.getElementById('authTitle').textContent = authMode === 'login' ? 'Inloggen' : 'Account aanmaken';
+  document.getElementById('authSubmitBtn').textContent = authMode === 'login' ? 'Inloggen' : 'Registreren';
+  document.getElementById('authToggleBtn').textContent = authMode === 'login' ? 'Nog geen account? Registreren' : 'Al een account? Inloggen';
+  document.getElementById('authError').style.display = 'none';
+  document.getElementById('authInfo').style.display = 'none';
+}
+
+async function handleAuthSubmit() {
+  const email = document.getElementById('authEmail').value.trim();
+  const password = document.getElementById('authPassword').value;
+  const errEl = document.getElementById('authError');
+  const infoEl = document.getElementById('authInfo');
+  errEl.style.display = 'none';
+  infoEl.style.display = 'none';
+  if (!email || !password) {
+    errEl.textContent = 'Vul een e-mailadres en wachtwoord in.';
+    errEl.style.display = 'block';
+    return;
+  }
+  const btn = document.getElementById('authSubmitBtn');
+  btn.disabled = true;
+  try {
+    if (authMode === 'login') {
+      const { error } = await supa.auth.signInWithPassword({ email, password });
+      if (error) throw error;
+    } else {
+      const { data, error } = await supa.auth.signUp({ email, password });
+      if (error) throw error;
+      if (data && data.user && !data.session) {
+        if (authMode !== 'login') toggleAuthMode();
+        infoEl.textContent = 'Check je e-mail om je account te bevestigen, log daarna hier in.';
+        infoEl.style.display = 'block';
+      }
+    }
+  } catch (e) {
+    errEl.textContent = (e && e.message === 'Invalid login credentials') ? 'Onjuist e-mailadres of wachtwoord.' : ((e && e.message) || 'Er ging iets mis.');
+    errEl.style.display = 'block';
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+async function handleLogout() {
+  try { await supa.auth.signOut(); } catch (e) { /* ignore */ }
+  window.location.reload();
+}
+
+async function initCloudSync(userId) {
+  db = makeSupabaseDb(userId);
+  try {
+    const snap = await db.collection('recipes').get();
+    recipes = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    safeSet('rb_recipes', recipes);
+  } catch (e) { /* keep the local cache we already loaded */ }
+  try {
+    const snap2 = await db.collection('shopping').get();
+    shoppingList = snap2.docs.map(d => ({ id: d.id, ...d.data() }));
+    safeSet('rb_shopping', shoppingList);
+  } catch (e) { /* keep the local cache we already loaded */ }
+  try {
+    const catDoc = await db.collection('meta').doc('categories').get();
+    const data = catDoc && catDoc.data ? catDoc.data() : null;
+    if (data && Array.isArray(data.order) && data.order.length) {
+      categoryOrder.length = 0;
+      categoryOrder.push(...data.order);
+      safeSet('rb_categoryOrder', categoryOrder);
+    }
+  } catch (e) { /* keep the local cache we already loaded */ }
+  try {
+    const unitDoc = await db.collection('meta').doc('units').get();
+    const udata = unitDoc && unitDoc.data ? unitDoc.data() : null;
+    if (udata && Array.isArray(udata.list) && udata.list.length) {
+      units.length = 0;
+      units.push(...udata.list);
+      safeSet('rb_units', units);
+    }
+  } catch (e) { /* keep the local cache we already loaded */ }
+  ensureCategoryOrder();
+  renderHome();
+  updateShopBadge();
+  if (currentView === 'shop') renderShop();
+}
+
+supa.auth.onAuthStateChange((event, session) => {
+  const overlay = document.getElementById('authOverlay');
+  if (session && session.user) {
+    if (overlay) overlay.classList.remove('show');
+    const emailLabel = document.getElementById('accountEmailLabel');
+    if (emailLabel) emailLabel.textContent = session.user.email;
+    if (!db) initCloudSync(session.user.id);
+  } else {
+    db = null;
+    if (overlay) overlay.classList.add('show');
+  }
+});
+
 function safeGet(key, fallback) {
   try {
     const raw = localStorage.getItem(key);
@@ -28,52 +165,14 @@ function safeSet(key, value) {
   try { localStorage.setItem(key, JSON.stringify(value)); } catch (e) { /* storage full or unavailable */ }
 }
 
-// Loads whatever is cached on this device first (instant, never blank), then tries the
-// durable cloud store so recipes survive closing the tab, clearing site data, or a new phone.
+// Loads whatever is cached on this device first (instant, never blank). The durable
+// cloud sync (Supabase) kicks in separately once the auth state resolves — see
+// initCloudSync() and the onAuthStateChange listener above.
 async function initStorage() {
   recipes = safeGet('rb_recipes', []);
   shoppingList = safeGet('rb_shopping', []);
   renderHome();
   updateShopBadge();
-
-  try {
-    if (window.claude && window.claude.use) db = await window.claude.use('db');
-  } catch (e) { db = null; }
-
-  if (db) {
-    try {
-      const snap = await db.collection('recipes').get();
-      recipes = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-      safeSet('rb_recipes', recipes);
-    } catch (e) { /* keep the local cache we already loaded */ }
-    try {
-      const snap2 = await db.collection('shopping').get();
-      shoppingList = snap2.docs.map(d => ({ id: d.id, ...d.data() }));
-      safeSet('rb_shopping', shoppingList);
-    } catch (e) { /* keep the local cache we already loaded */ }
-    try {
-      const catDoc = await db.collection('meta').doc('categories').get();
-      const data = catDoc && catDoc.data ? catDoc.data() : null;
-      if (data && Array.isArray(data.order) && data.order.length) {
-        categoryOrder.length = 0;
-        categoryOrder.push(...data.order);
-        safeSet('rb_categoryOrder', categoryOrder);
-      }
-    } catch (e) { /* keep the local cache we already loaded */ }
-    try {
-      const unitDoc = await db.collection('meta').doc('units').get();
-      const udata = unitDoc && unitDoc.data ? unitDoc.data() : null;
-      if (udata && Array.isArray(udata.list) && udata.list.length) {
-        units.length = 0;
-        units.push(...udata.list);
-        safeSet('rb_units', units);
-      }
-    } catch (e) { /* keep the local cache we already loaded */ }
-    ensureCategoryOrder();
-    renderHome();
-    updateShopBadge();
-    if (currentView === 'shop') renderShop();
-  }
 }
 
 function saveRecipes() { safeSet('rb_recipes', recipes); }
