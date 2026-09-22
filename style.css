@@ -2197,34 +2197,60 @@ img {
 
 /* ---------- Confirm dialog ---------- */
 
-.auth-overlay {
-  position: fixed;
-  inset: 0;
-  background: var(--paper);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 24px;
-  z-index: 200;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.2s ease;
-}
-
-.auth-overlay.show {
-  opacity: 1;
-  pointer-events: auto;
-}
-
 .auth-box {
   width: 100%;
   max-width: 340px;
+  margin: 24px auto 0;
   background: var(--paper-alt);
   border: 1px solid var(--card-border);
   border-radius: 20px;
   padding: 32px 26px 26px;
-  box-shadow: 0 20px 48px var(--shadow);
+  box-shadow: 0 8px 24px var(--shadow);
   text-align: center;
+}
+
+.account-summary {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 4px;
+  background: none;
+  border: none;
+  text-align: left;
+}
+
+.account-summary-mark {
+  width: 38px;
+  height: 38px;
+  flex: none;
+  border-radius: 50%;
+  background: var(--green-soft);
+  color: var(--green);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.account-summary-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.account-summary-text strong {
+  font-size: 15px;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.account-summary-text small {
+  font-size: 12.5px;
+  color: var(--ink-soft);
 }
 
 .auth-mark {

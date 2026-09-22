@@ -58,6 +58,7 @@ function makeSupabaseDb(userId) {
 
 function toggleAuthMode() {
   authMode = authMode === 'login' ? 'signup' : 'login';
+  document.getElementById('authNameField').style.display = authMode === 'login' ? 'none' : 'block';
   document.getElementById('authSubtitle').textContent = authMode === 'login' ? 'Log in om je recepten overal te zien' : 'Maak een account om overal bij je recepten te kunnen';
   document.getElementById('authSubmitBtn').textContent = authMode === 'login' ? 'Inloggen' : 'Registreren';
   document.getElementById('authToggleBtn').innerHTML = authMode === 'login' ? 'Nog geen account? <span>Registreren</span>' : 'Al een account? <span>Inloggen</span>';
@@ -66,14 +67,15 @@ function toggleAuthMode() {
 }
 
 async function handleAuthSubmit() {
+  const name = document.getElementById('authName').value.trim();
   const email = document.getElementById('authEmail').value.trim();
   const password = document.getElementById('authPassword').value;
   const errEl = document.getElementById('authError');
   const infoEl = document.getElementById('authInfo');
   errEl.classList.remove('show');
   infoEl.classList.remove('show');
-  if (!email || !password) {
-    errEl.textContent = 'Vul een e-mailadres en wachtwoord in.';
+  if (!email || !password || (authMode === 'signup' && !name)) {
+    errEl.textContent = authMode === 'signup' ? 'Vul je naam, e-mailadres en wachtwoord in.' : 'Vul een e-mailadres en wachtwoord in.';
     errEl.classList.add('show');
     return;
   }
@@ -83,10 +85,13 @@ async function handleAuthSubmit() {
     if (authMode === 'login') {
       const { error } = await supa.auth.signInWithPassword({ email, password });
       if (error) throw error;
+      switchView('settings');
     } else {
-      const { data, error } = await supa.auth.signUp({ email, password });
+      const { data, error } = await supa.auth.signUp({ email, password, options: { data: { name } } });
       if (error) throw error;
-      if (data && data.user && !data.session) {
+      if (data && data.session) {
+        switchView('settings');
+      } else if (data && data.user && !data.session) {
         if (authMode !== 'login') toggleAuthMode();
         infoEl.textContent = 'Check je e-mail om je account te bevestigen, log daarna hier in.';
         infoEl.classList.add('show');
@@ -103,6 +108,23 @@ async function handleAuthSubmit() {
 async function handleLogout() {
   try { await supa.auth.signOut(); } catch (e) { /* ignore */ }
   window.location.reload();
+}
+
+function updateAccountUI(session) {
+  const loggedOutRow = document.getElementById('accountSummaryLoggedOut');
+  const loggedInRow = document.getElementById('accountSummaryLoggedIn');
+  const logoutRow = document.getElementById('logoutRow');
+  if (session && session.user) {
+    if (loggedOutRow) loggedOutRow.style.display = 'none';
+    if (loggedInRow) loggedInRow.style.display = 'flex';
+    if (logoutRow) logoutRow.style.display = 'flex';
+    const nameLabel = document.getElementById('accountNameLabel');
+    if (nameLabel) nameLabel.textContent = (session.user.user_metadata && session.user.user_metadata.name) || session.user.email;
+  } else {
+    if (loggedOutRow) loggedOutRow.style.display = 'flex';
+    if (loggedInRow) loggedInRow.style.display = 'none';
+    if (logoutRow) logoutRow.style.display = 'none';
+  }
 }
 
 async function initCloudSync(userId) {
@@ -142,15 +164,11 @@ async function initCloudSync(userId) {
 }
 
 supa.auth.onAuthStateChange((event, session) => {
-  const overlay = document.getElementById('authOverlay');
+  updateAccountUI(session);
   if (session && session.user) {
-    if (overlay) overlay.classList.remove('show');
-    const emailLabel = document.getElementById('accountEmailLabel');
-    if (emailLabel) emailLabel.textContent = session.user.email;
     if (!db) initCloudSync(session.user.id);
   } else {
     db = null;
-    if (overlay) overlay.classList.add('show');
   }
 });
 
@@ -360,7 +378,7 @@ function switchView(name) {
   document.getElementById('tabHome').classList.toggle('active', name === 'home');
   document.getElementById('tabShop').classList.toggle('active', name === 'shop');
   document.getElementById('tabPlanner').classList.toggle('active', name === 'planner');
-  const noTabbar = ['form', 'settings', 'settings-categories', 'settings-units', 'settings-shopcategories', 'settings-shopstore', 'help', 'help-kooktechnieken'];
+  const noTabbar = ['form', 'settings', 'settings-categories', 'settings-units', 'settings-shopcategories', 'settings-shopstore', 'account', 'help', 'help-kooktechnieken'];
   document.getElementById('tabbar').style.display = noTabbar.includes(name) ? 'none' : 'flex';
   updateUndoButton();
   window.scrollTo(0,0);
