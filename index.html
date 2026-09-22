@@ -20,25 +20,25 @@
 </head>
 <body>
 
-<div class="confirm-overlay show" id="authOverlay">
-  <div class="confirm-box" style="max-width:340px; text-align:left;">
-    <div class="info-box-header">
-      <h3 id="authTitle">Inloggen</h3>
+<div class="auth-overlay show" id="authOverlay">
+  <div class="auth-box">
+    <div class="auth-mark">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>
     </div>
+    <h1 class="auth-brand">Mijn <em>Receptenboek</em></h1>
+    <p class="auth-sub" id="authSubtitle">Log in om je recepten overal te zien</p>
     <div class="field">
       <label>E-mailadres</label>
       <input type="email" id="authEmail" placeholder="jij@voorbeeld.nl" autocomplete="email">
     </div>
-    <div class="field">
+    <div class="field" style="margin-bottom:8px;">
       <label>Wachtwoord</label>
       <input type="password" id="authPassword" placeholder="Minimaal 6 tekens" autocomplete="current-password">
     </div>
-    <p id="authError" style="display:none; color:#c0392b; font-size:13px; margin:0 0 12px;"></p>
-    <p id="authInfo" style="display:none; color:var(--ink-soft); font-size:13px; margin:0 0 12px;"></p>
-    <div class="confirm-actions confirm-actions-col">
-      <button class="btn btn-primary" id="authSubmitBtn" onclick="handleAuthSubmit()">Inloggen</button>
-      <button class="btn btn-ghost" id="authToggleBtn" onclick="toggleAuthMode()">Nog geen account? Registreren</button>
-    </div>
+    <p class="auth-msg auth-msg-error" id="authError"></p>
+    <p class="auth-msg auth-msg-info" id="authInfo"></p>
+    <button class="btn btn-primary auth-submit" id="authSubmitBtn" onclick="handleAuthSubmit()">Inloggen</button>
+    <button class="auth-toggle" id="authToggleBtn" onclick="toggleAuthMode()">Nog geen account? <span>Registreren</span></button>
   </div>
 </div>
 

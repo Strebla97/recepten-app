@@ -58,11 +58,11 @@ function makeSupabaseDb(userId) {
 
 function toggleAuthMode() {
   authMode = authMode === 'login' ? 'signup' : 'login';
-  document.getElementById('authTitle').textContent = authMode === 'login' ? 'Inloggen' : 'Account aanmaken';
+  document.getElementById('authSubtitle').textContent = authMode === 'login' ? 'Log in om je recepten overal te zien' : 'Maak een account om overal bij je recepten te kunnen';
   document.getElementById('authSubmitBtn').textContent = authMode === 'login' ? 'Inloggen' : 'Registreren';
-  document.getElementById('authToggleBtn').textContent = authMode === 'login' ? 'Nog geen account? Registreren' : 'Al een account? Inloggen';
-  document.getElementById('authError').style.display = 'none';
-  document.getElementById('authInfo').style.display = 'none';
+  document.getElementById('authToggleBtn').innerHTML = authMode === 'login' ? 'Nog geen account? <span>Registreren</span>' : 'Al een account? <span>Inloggen</span>';
+  document.getElementById('authError').classList.remove('show');
+  document.getElementById('authInfo').classList.remove('show');
 }
 
 async function handleAuthSubmit() {
@@ -70,11 +70,11 @@ async function handleAuthSubmit() {
   const password = document.getElementById('authPassword').value;
   const errEl = document.getElementById('authError');
   const infoEl = document.getElementById('authInfo');
-  errEl.style.display = 'none';
-  infoEl.style.display = 'none';
+  errEl.classList.remove('show');
+  infoEl.classList.remove('show');
   if (!email || !password) {
     errEl.textContent = 'Vul een e-mailadres en wachtwoord in.';
-    errEl.style.display = 'block';
+    errEl.classList.add('show');
     return;
   }
   const btn = document.getElementById('authSubmitBtn');
@@ -89,12 +89,12 @@ async function handleAuthSubmit() {
       if (data && data.user && !data.session) {
         if (authMode !== 'login') toggleAuthMode();
         infoEl.textContent = 'Check je e-mail om je account te bevestigen, log daarna hier in.';
-        infoEl.style.display = 'block';
+        infoEl.classList.add('show');
       }
     }
   } catch (e) {
     errEl.textContent = (e && e.message === 'Invalid login credentials') ? 'Onjuist e-mailadres of wachtwoord.' : ((e && e.message) || 'Er ging iets mis.');
-    errEl.style.display = 'block';
+    errEl.classList.add('show');
   } finally {
     btn.disabled = false;
   }

@@ -1522,7 +1522,7 @@ img {
   color: var(--ink);
 }
 
-.field input[type="text"], .field input[type="number"], .field input[type="url"], .field select, .field textarea {
+.field input[type="text"], .field input[type="number"], .field input[type="url"], .field input[type="email"], .field input[type="password"], .field select, .field textarea {
   width: 100%;
   background: var(--paper-alt);
   border: 1px solid var(--card-border);
@@ -2196,6 +2196,111 @@ img {
 }
 
 /* ---------- Confirm dialog ---------- */
+
+.auth-overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--paper);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  z-index: 200;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+
+.auth-overlay.show {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.auth-box {
+  width: 100%;
+  max-width: 340px;
+  background: var(--paper-alt);
+  border: 1px solid var(--card-border);
+  border-radius: 20px;
+  padding: 32px 26px 26px;
+  box-shadow: 0 20px 48px var(--shadow);
+  text-align: center;
+}
+
+.auth-mark {
+  width: 52px;
+  height: 52px;
+  margin: 0 auto 14px;
+  border-radius: 50%;
+  background: var(--green-soft);
+  color: var(--green);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.auth-brand {
+  margin: 0 0 6px;
+  font-size: 22px;
+  color: var(--ink);
+}
+
+.auth-brand em {
+  color: var(--green);
+  font-style: italic;
+}
+
+.auth-sub {
+  margin: 0 0 24px;
+  font-size: 13.5px;
+  color: var(--ink-soft);
+  line-height: 1.4;
+}
+
+.auth-box .field {
+  text-align: left;
+}
+
+.auth-msg {
+  display: none;
+  font-size: 13px;
+  line-height: 1.4;
+  margin: -4px 0 14px;
+  text-align: left;
+}
+
+.auth-msg.show {
+  display: block;
+}
+
+.auth-msg-error {
+  color: #c0392b;
+}
+
+.auth-msg-info {
+  color: var(--ink-soft);
+}
+
+.auth-submit {
+  width: 100%;
+  margin-top: 4px;
+}
+
+.auth-toggle {
+  display: block;
+  width: 100%;
+  margin-top: 16px;
+  background: none;
+  border: none;
+  font-size: 13.5px;
+  color: var(--ink-soft);
+  padding: 4px;
+}
+
+.auth-toggle span {
+  color: var(--green);
+  font-weight: 600;
+}
 
 .confirm-overlay {
   position: fixed;
