@@ -2178,9 +2178,17 @@ img {
   color: var(--ink);
 }
 
-.planner-pick-custom .btn {
+.planner-pick-custom-add {
   flex: none;
-  padding: 10px 16px;
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: var(--green);
+  color: #fff;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .planner-recipe-custom .planner-recipe-name {
