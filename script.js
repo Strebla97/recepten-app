@@ -718,8 +718,19 @@ function renderPlanner() {
     const compactAddBtn = `<button class="planner-add-btn-compact" onclick="event.stopPropagation(); openPlannerPick('${key}')" title="Recept toevoegen">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
     </button>`;
-    const recipeRows = ids.map(id => {
-      const r = recipes.find(x => x.id === id);
+    const recipeRows = ids.map(item => {
+      if (item && typeof item === 'object' && item.custom) {
+        return `<div class="planner-recipe planner-recipe-custom">
+          <div class="planner-recipe-thumb">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 013 3L7 19l-4 1 1-4Z"/></svg>
+          </div>
+          <span class="planner-recipe-name">${item.title}</span>
+          <button class="planner-recipe-remove" onclick="event.stopPropagation(); removePlannerRecipe('${key}','${item.id}')">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+          </button>
+        </div>`;
+      }
+      const r = recipes.find(x => x.id === item);
       if (!r) return '';
       return `<div class="planner-recipe" onclick="openDetail('${r.id}')">
         <div class="planner-recipe-thumb">${r.photo ? `<img src="${r.photo}">` : phSvg(16)}</div>
@@ -794,8 +805,20 @@ function addPlannerRecipe(key, id) {
 
 function removePlannerRecipe(key, id) {
   if (!plannerData[key]) return;
-  plannerData[key] = plannerData[key].filter(x => x !== id);
+  plannerData[key] = plannerData[key].filter(x => (typeof x === 'string' ? x !== id : x.id !== id));
   if (plannerData[key].length === 0) delete plannerData[key];
+  savePlanner();
+  renderPlanner();
+}
+
+// A planner entry is either a recipe id (string) or a free-text item the
+// user typed for something already sorted outside the app, e.g. "Pizza
+// gehaald bij de buren" — { custom: true, id, title }.
+function addPlannerCustomItem(key, title) {
+  const text = (title || '').trim();
+  if (!text) return;
+  if (!plannerData[key]) plannerData[key] = [];
+  plannerData[key].push({ custom: true, id: uid(), title: text });
   savePlanner();
   renderPlanner();
 }
@@ -803,12 +826,32 @@ function removePlannerRecipe(key, id) {
 function openPlannerPick(key) {
   plannerPickDateKey = key;
   document.getElementById('plannerPickSearch').value = '';
+  document.getElementById('plannerCustomInput').value = '';
+  document.getElementById('plannerPickCustomRow').style.display = 'none';
+  document.getElementById('plannerPickCustomToggle').style.display = 'block';
   renderPlannerPickList();
   document.getElementById('plannerPickOverlay').classList.add('show');
 }
 
 function closePlannerPick() {
   document.getElementById('plannerPickOverlay').classList.remove('show');
+}
+
+function togglePlannerCustomInput() {
+  const row = document.getElementById('plannerPickCustomRow');
+  const toggle = document.getElementById('plannerPickCustomToggle');
+  row.style.display = 'flex';
+  toggle.style.display = 'none';
+  document.getElementById('plannerCustomInput').focus();
+}
+
+function submitPlannerCustom() {
+  const input = document.getElementById('plannerCustomInput');
+  const text = input.value.trim();
+  if (!text) { input.focus(); return; }
+  addPlannerCustomItem(plannerPickDateKey, text);
+  input.value = '';
+  closePlannerPick();
 }
 
 let plannerQuickRecipeId = null;

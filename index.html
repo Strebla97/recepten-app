@@ -352,6 +352,11 @@
         <h3 class="serif">Recept toevoegen</h3>
       </div>
       <input type="text" id="plannerPickSearch" placeholder="Zoek een recept…" oninput="renderPlannerPickList()">
+      <button class="planner-pick-custom-toggle" id="plannerPickCustomToggle" onclick="togglePlannerCustomInput()">+ Zelf een titel invoeren</button>
+      <div class="planner-pick-custom" id="plannerPickCustomRow" style="display:none;">
+        <input type="text" id="plannerCustomInput" placeholder="Bijv. Pizza gehaald bij de buren" onkeydown="if(event.key==='Enter'){event.preventDefault();submitPlannerCustom();}">
+        <button class="btn btn-primary" onclick="submitPlannerCustom()">Toevoegen</button>
+      </div>
       <div class="planner-pick-list" id="plannerPickList"></div>
       <div class="confirm-actions" style="margin-top:14px;">
         <button class="btn btn-ghost" onclick="closePlannerPick()">Sluiten</button>

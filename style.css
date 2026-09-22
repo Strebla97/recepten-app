@@ -2132,6 +2132,42 @@ img {
   margin-top: 12px;
 }
 
+.planner-pick-custom-toggle {
+  display: block;
+  background: none;
+  border: none;
+  color: var(--green);
+  font-size: 13.5px;
+  font-weight: 600;
+  padding: 8px 2px 2px;
+  text-align: left;
+}
+
+.planner-pick-custom {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.planner-pick-custom input {
+  flex: 1;
+  background: var(--paper);
+  border: 1px solid var(--card-border);
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 15px;
+  color: var(--ink);
+}
+
+.planner-pick-custom .btn {
+  flex: none;
+  padding: 10px 16px;
+}
+
+.planner-recipe-custom .planner-recipe-name {
+  font-style: italic;
+}
+
 .planner-pick-row {
   display: flex;
   align-items: center;
