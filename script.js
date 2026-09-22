@@ -721,6 +721,9 @@ function renderPlanner() {
     const recipeRows = ids.map(item => {
       if (item && typeof item === 'object' && item.custom) {
         return `<div class="planner-recipe planner-recipe-custom">
+          <div class="planner-recipe-thumb">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+          </div>
           <span class="planner-recipe-name">${item.title}</span>
           <button class="planner-recipe-remove" onclick="event.stopPropagation(); removePlannerRecipe('${key}','${item.id}')">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
