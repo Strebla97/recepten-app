@@ -1741,6 +1741,63 @@ function parseRecipeText(text) {
   return { name, time, baseServings, ingredients, steps };
 }
 
+function openAddFromUrl() {
+  document.getElementById('addUrlInput').value = '';
+  document.getElementById('addUrlError').classList.remove('show');
+  document.getElementById('addUrlOverlay').classList.add('show');
+}
+
+function closeAddUrlDialog() {
+  document.getElementById('addUrlOverlay').classList.remove('show');
+}
+
+async function submitAddUrlDialog() {
+  const url = document.getElementById('addUrlInput').value.trim();
+  const errEl = document.getElementById('addUrlError');
+  const btn = document.getElementById('addUrlSubmitBtn');
+  errEl.classList.remove('show');
+  if (!url) {
+    errEl.textContent = 'Plak eerst een link naar een receptenpagina.';
+    errEl.classList.add('show');
+    return;
+  }
+  btn.disabled = true;
+  btn.textContent = 'Ophalen…';
+  try {
+    const { data, error } = await supa.functions.invoke('fetch-recipe', { body: { url } });
+    if (error) throw error;
+    if (data && data.error) throw new Error(data.error);
+    closeAddUrlDialog();
+    openForm();
+    if (data.name) document.getElementById('fName').value = data.name;
+    if (data.description) document.getElementById('fDescription').value = data.description;
+    if (data.time) document.getElementById('fTime').value = data.time;
+    if (data.servings) document.getElementById('fServings').value = data.servings;
+    document.getElementById('fSourceUrl').value = url;
+
+    const ingredients = (data.ingredientLines || []).map(parseIngredientTextLine).filter(Boolean);
+    if (ingredients.length) {
+      document.getElementById('ingRows').innerHTML = '';
+      ingredients.forEach(i => addIngRow(i));
+    }
+    const steps = data.stepLines || [];
+    if (steps.length) {
+      document.getElementById('stepRows').innerHTML = '';
+      steps.forEach(s => addStepRow(s));
+    }
+    formSnapshot = getFormSnapshot();
+    showToast(ingredients.length || steps.length
+      ? `Herkend: ${ingredients.length} ingrediënten, ${steps.length} stappen — controleer en vul aan`
+      : 'Kon geen recept herkennen op deze pagina — vul het handmatig aan');
+  } catch (e) {
+    errEl.textContent = (e && e.message) || 'Ophalen mislukt. Probeer een andere link of vul handmatig aan.';
+    errEl.classList.add('show');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Ophalen';
+  }
+}
+
 function openAddFromPaste() {
   document.getElementById('addPasteInput').value = '';
   document.getElementById('addPasteOverlay').classList.add('show');

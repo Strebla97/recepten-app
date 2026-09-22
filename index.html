@@ -640,6 +640,26 @@
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2"/><path d="M9 12h6M9 16h6M9 8h2"/></svg>
       Plak tekst
     </button>
+    <button class="dropdown-item" onclick="event.stopPropagation(); closeAddRecipeMenu(); openAddFromUrl();">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
+      URL
+    </button>
+  </div>
+
+  <!-- ADD FROM URL DIALOG -->
+  <div class="confirm-overlay" id="addUrlOverlay" onclick="if(event.target===this) closeAddUrlDialog()">
+    <div class="confirm-box info-box">
+      <div class="info-box-header">
+        <h3 class="serif">Recept van URL</h3>
+      </div>
+      <p class="dialog-hint">Plak de link naar een receptenpagina. We proberen automatisch de naam, ingrediënten en bereidingsstappen op te halen — controleer en vul daarna aan waar nodig.</p>
+      <input type="url" id="addUrlInput" class="overlay-input" placeholder="https://www.voorbeeld.nl/recept/...">
+      <p class="auth-msg auth-msg-error" id="addUrlError"></p>
+      <div class="confirm-actions" style="margin-top:14px;">
+        <button class="btn btn-ghost" onclick="closeAddUrlDialog()">Annuleren</button>
+        <button class="btn btn-primary" id="addUrlSubmitBtn" onclick="submitAddUrlDialog()">Ophalen</button>
+      </div>
+    </div>
   </div>
 
   <!-- ADD FROM PASTED TEXT DIALOG -->
