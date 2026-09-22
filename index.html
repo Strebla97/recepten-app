@@ -371,27 +371,22 @@
       </div>
     </div>
     <div class="form-wrap">
-      <div class="settings-group">
-        <button class="account-summary" id="accountSummaryLoggedOut" onclick="switchView('account')">
-          <span class="account-summary-mark">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>
+      <div class="account-header-wrap">
+        <button class="account-header" id="accountHeaderLoggedOut" onclick="openAccountModal()">
+          <span class="account-header-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a7 7 0 0114 0v1"/></svg>
           </span>
-          <span class="account-summary-text">
-            <strong>Account</strong>
-            <small>Log in om overal bij je recepten te kunnen</small>
-          </span>
-          <svg class="settings-item-chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+          <span class="account-header-label account-header-cta">Inloggen of Registreren</span>
         </button>
-        <div class="account-summary" id="accountSummaryLoggedIn" style="display:none;">
-          <span class="account-summary-mark">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>
+        <div class="account-header" id="accountHeaderLoggedIn" style="display:none;">
+          <span class="account-header-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a7 7 0 0114 0v1"/></svg>
           </span>
-          <span class="account-summary-text">
-            <strong id="accountNameLabel">-</strong>
-            <small>Ingelogd</small>
-          </span>
+          <span class="account-header-label" id="accountHeaderName">-</span>
         </div>
-        <button class="settings-menu-item" id="logoutRow" style="display:none;" onclick="handleLogout()">
+      </div>
+      <div class="settings-group" id="logoutGroup" style="display:none;">
+        <button class="settings-menu-item" id="logoutRow" onclick="handleLogout()">
           <span class="settings-item-icon">
             <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
           </span>
@@ -459,43 +454,6 @@
           <span class="settings-item-text">Categorieën</span>
           <svg class="settings-item-chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
         </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- ACCOUNT VIEW -->
-  <div class="view" id="view-account">
-    <div class="topbar">
-      <div class="topbar-row">
-        <button class="icon-btn" onclick="switchView('settings')">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
-        </button>
-        <h1 class="brand" style="font-size:19px;">Account</h1>
-        <span style="width:32px;"></span>
-      </div>
-    </div>
-    <div class="form-wrap">
-      <div class="auth-box auth-box-inline">
-        <div class="auth-mark">
-          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>
-        </div>
-        <p class="auth-sub" id="authSubtitle">Log in om je recepten overal te zien</p>
-        <div class="field" id="authNameField" style="display:none;">
-          <label>Jouw naam</label>
-          <input type="text" id="authName" placeholder="Bijv. Mick" autocomplete="name">
-        </div>
-        <div class="field">
-          <label>E-mailadres</label>
-          <input type="email" id="authEmail" placeholder="jij@voorbeeld.nl" autocomplete="email">
-        </div>
-        <div class="field" style="margin-bottom:8px;">
-          <label>Wachtwoord</label>
-          <input type="password" id="authPassword" placeholder="Minimaal 6 tekens" autocomplete="current-password">
-        </div>
-        <p class="auth-msg auth-msg-error" id="authError"></p>
-        <p class="auth-msg auth-msg-info" id="authInfo"></p>
-        <button class="btn btn-primary auth-submit" id="authSubmitBtn" onclick="handleAuthSubmit()">Inloggen</button>
-        <button class="auth-toggle" id="authToggleBtn" onclick="toggleAuthMode()">Nog geen account? <span>Registreren</span></button>
       </div>
     </div>
   </div>
@@ -726,6 +684,35 @@
       </div>
       <div id="infoNutrition"></div>
       <div class="tag-chips" id="infoTags"></div>
+    </div>
+  </div>
+
+  <!-- ACCOUNT MODAL -->
+  <div class="confirm-overlay" id="accountModal" onclick="if(event.target===this) closeAccountModal()">
+    <div class="auth-box">
+      <button class="modal-close" onclick="closeAccountModal()" aria-label="Sluiten">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+      <div class="auth-mark">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>
+      </div>
+      <p class="auth-sub" id="authSubtitle">Log in om je recepten overal te zien</p>
+      <div class="field" id="authNameField" style="display:none;">
+        <label>Jouw naam</label>
+        <input type="text" id="authName" placeholder="Bijv. Mick" autocomplete="name">
+      </div>
+      <div class="field">
+        <label>E-mailadres</label>
+        <input type="email" id="authEmail" placeholder="jij@voorbeeld.nl" autocomplete="email">
+      </div>
+      <div class="field" style="margin-bottom:8px;">
+        <label>Wachtwoord</label>
+        <input type="password" id="authPassword" placeholder="Minimaal 6 tekens" autocomplete="current-password">
+      </div>
+      <p class="auth-msg auth-msg-error" id="authError"></p>
+      <p class="auth-msg auth-msg-info" id="authInfo"></p>
+      <button class="btn btn-primary auth-submit" id="authSubmitBtn" onclick="handleAuthSubmit()">Inloggen</button>
+      <button class="auth-toggle" id="authToggleBtn" onclick="toggleAuthMode()">Nog geen account? <span>Registreren</span></button>
     </div>
   </div>
 </div>

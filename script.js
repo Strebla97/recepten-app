@@ -56,6 +56,24 @@ function makeSupabaseDb(userId) {
   };
 }
 
+function openAccountModal() {
+  authMode = 'login';
+  document.getElementById('authName').value = '';
+  document.getElementById('authEmail').value = '';
+  document.getElementById('authPassword').value = '';
+  document.getElementById('authNameField').style.display = 'none';
+  document.getElementById('authSubtitle').textContent = 'Log in om je recepten overal te zien';
+  document.getElementById('authSubmitBtn').textContent = 'Inloggen';
+  document.getElementById('authToggleBtn').innerHTML = 'Nog geen account? <span>Registreren</span>';
+  document.getElementById('authError').classList.remove('show');
+  document.getElementById('authInfo').classList.remove('show');
+  document.getElementById('accountModal').classList.add('show');
+}
+
+function closeAccountModal() {
+  document.getElementById('accountModal').classList.remove('show');
+}
+
 function toggleAuthMode() {
   authMode = authMode === 'login' ? 'signup' : 'login';
   document.getElementById('authNameField').style.display = authMode === 'login' ? 'none' : 'block';
@@ -85,12 +103,12 @@ async function handleAuthSubmit() {
     if (authMode === 'login') {
       const { error } = await supa.auth.signInWithPassword({ email, password });
       if (error) throw error;
-      switchView('settings');
+      closeAccountModal();
     } else {
       const { data, error } = await supa.auth.signUp({ email, password, options: { data: { name } } });
       if (error) throw error;
       if (data && data.session) {
-        switchView('settings');
+        closeAccountModal();
       } else if (data && data.user && !data.session) {
         if (authMode !== 'login') toggleAuthMode();
         infoEl.textContent = 'Check je e-mail om je account te bevestigen, log daarna hier in.';
@@ -111,19 +129,19 @@ async function handleLogout() {
 }
 
 function updateAccountUI(session) {
-  const loggedOutRow = document.getElementById('accountSummaryLoggedOut');
-  const loggedInRow = document.getElementById('accountSummaryLoggedIn');
-  const logoutRow = document.getElementById('logoutRow');
+  const loggedOutHeader = document.getElementById('accountHeaderLoggedOut');
+  const loggedInHeader = document.getElementById('accountHeaderLoggedIn');
+  const logoutGroup = document.getElementById('logoutGroup');
   if (session && session.user) {
-    if (loggedOutRow) loggedOutRow.style.display = 'none';
-    if (loggedInRow) loggedInRow.style.display = 'flex';
-    if (logoutRow) logoutRow.style.display = 'flex';
-    const nameLabel = document.getElementById('accountNameLabel');
+    if (loggedOutHeader) loggedOutHeader.style.display = 'none';
+    if (loggedInHeader) loggedInHeader.style.display = 'flex';
+    if (logoutGroup) logoutGroup.style.display = 'block';
+    const nameLabel = document.getElementById('accountHeaderName');
     if (nameLabel) nameLabel.textContent = (session.user.user_metadata && session.user.user_metadata.name) || session.user.email;
   } else {
-    if (loggedOutRow) loggedOutRow.style.display = 'flex';
-    if (loggedInRow) loggedInRow.style.display = 'none';
-    if (logoutRow) logoutRow.style.display = 'none';
+    if (loggedOutHeader) loggedOutHeader.style.display = 'flex';
+    if (loggedInHeader) loggedInHeader.style.display = 'none';
+    if (logoutGroup) logoutGroup.style.display = 'none';
   }
 }
 
@@ -378,7 +396,7 @@ function switchView(name) {
   document.getElementById('tabHome').classList.toggle('active', name === 'home');
   document.getElementById('tabShop').classList.toggle('active', name === 'shop');
   document.getElementById('tabPlanner').classList.toggle('active', name === 'planner');
-  const noTabbar = ['form', 'settings', 'settings-categories', 'settings-units', 'settings-shopcategories', 'settings-shopstore', 'account', 'help', 'help-kooktechnieken'];
+  const noTabbar = ['form', 'settings', 'settings-categories', 'settings-units', 'settings-shopcategories', 'settings-shopstore', 'help', 'help-kooktechnieken'];
   document.getElementById('tabbar').style.display = noTabbar.includes(name) ? 'none' : 'flex';
   updateUndoButton();
   window.scrollTo(0,0);
