@@ -1157,20 +1157,18 @@ img {
 }
 
 .extra-meta-pill.difficulty-easy {
-  background: var(--green);
-  border-color: var(--green);
+  background: #1B4332;
+  border-color: #1B4332;
   color: #fff;
 }
-
 .extra-meta-pill.difficulty-medium {
-  background: var(--orange);
-  border-color: var(--orange);
+  background: #8A4A0F;
+  border-color: #8A4A0F;
   color: #fff;
 }
-
 .extra-meta-pill.difficulty-hard {
-  background: var(--brick);
-  border-color: var(--brick);
+  background: #6B1E1E;
+  border-color: #6B1E1E;
   color: #fff;
 }
 
@@ -2998,4 +2996,21 @@ img {
   .step-hl-ing {
     color: #000 !important;
   }
+}
+
+/* ---------- Hover tooltips ---------- */
+
+.custom-tooltip {
+  display: none;
+  position: fixed;
+  z-index: 500;
+  background: var(--ink);
+  color: var(--paper);
+  font-size: 12.5px;
+  font-weight: 600;
+  padding: 5px 10px;
+  border-radius: 7px;
+  box-shadow: 0 4px 14px var(--shadow);
+  pointer-events: none;
+  white-space: nowrap;
 }

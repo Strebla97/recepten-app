@@ -1373,8 +1373,8 @@ function phSvg(size) {
   return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M4 19h16M6 19V7a2 2 0 012-2h8a2 2 0 012 2v12M9 11h6M9 15h6"/></svg>`;
 }
 
-const infoBtnHtml = `<span class="info-btn" title="Snelle info">i</span>`;
-const moreBtnHtml = `<span class="more-btn" title="Meer opties">
+const infoBtnHtml = `<span class="info-btn" title="Info">i</span>`;
+const moreBtnHtml = `<span class="more-btn" title="Menu">
   <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>
 </span>`;
 
@@ -3267,6 +3267,71 @@ makeDragReorder('shopStoreSettingsRows', () => {
   const store = shopStores.find(s => s.id === editingShopStoreId);
   return store ? store.order : [];
 }, saveShopStores, renderShopStoreSettings);
+
+/* ---------------- Hover tooltips (mouse only) ---------------- */
+// Shows a small delayed tooltip with the button's title text after 2s of
+// hovering — only for mouse/trackpad users (touch devices have no hover),
+// and only one at a time via a single tracked element + timer.
+(function initHoverTooltips() {
+  if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+  let activeEl = null;
+  let timer = null;
+  let bubble = null;
+
+  function ensureBubble() {
+    if (!bubble) {
+      bubble = document.createElement('div');
+      bubble.className = 'custom-tooltip';
+      document.body.appendChild(bubble);
+    }
+    return bubble;
+  }
+
+  function showBubble(el, text) {
+    const tip = ensureBubble();
+    tip.textContent = text;
+    tip.style.left = '0px';
+    tip.style.top = '0px';
+    tip.style.display = 'block';
+    const rect = el.getBoundingClientRect();
+    const tw = tip.offsetWidth;
+    let left = rect.left + rect.width / 2 - tw / 2;
+    left = Math.min(Math.max(8, left), window.innerWidth - tw - 8);
+    let top = rect.bottom + 8;
+    if (top + 30 > window.innerHeight) top = rect.top - 34;
+    tip.style.left = left + 'px';
+    tip.style.top = top + 'px';
+  }
+
+  function hideTooltip() {
+    clearTimeout(timer);
+    if (activeEl && activeEl.dataset.tooltipText) {
+      activeEl.setAttribute('title', activeEl.dataset.tooltipText);
+      delete activeEl.dataset.tooltipText;
+    }
+    activeEl = null;
+    if (bubble) bubble.style.display = 'none';
+  }
+
+  document.addEventListener('mouseover', (e) => {
+    const el = e.target.closest('[title]');
+    if (!el || el === activeEl) return;
+    if (activeEl) hideTooltip();
+    activeEl = el;
+    const text = el.getAttribute('title');
+    el.dataset.tooltipText = text;
+    el.removeAttribute('title');
+    timer = setTimeout(() => showBubble(el, text), 2000);
+  });
+
+  document.addEventListener('mouseout', (e) => {
+    if (!activeEl) return;
+    if (e.relatedTarget && activeEl.contains(e.relatedTarget)) return;
+    hideTooltip();
+  });
+
+  window.addEventListener('scroll', hideTooltip, true);
+})();
 
 /* ---------------- Init ---------------- */
 initStorage();
