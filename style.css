@@ -2950,50 +2950,15 @@ img {
   }
 }
 
-/* ---------- PDF export (print) ---------- */
-/* Prints the recipe detail page as-is, but with white backgrounds
-   everywhere instead of the app's colored fills, to save ink. */
+/* ---------- PDF export ---------- */
+/* While html2canvas rasterizes #view-detail for the PDF export, hide the
+   interactive-only chrome that doesn't belong in a static read-out. */
 
-@media print {
-  * {
-    -webkit-print-color-adjust: exact !important;
-    print-color-adjust: exact !important;
-    color-adjust: exact !important;
-  }
-
-  .tabbar, .dropdown-backdrop, #recipeMoreMenu, #plannerQuickMenu,
-  #plannerPickOverlay, #infoOverlay, #photoLightbox, #toast,
-  .add-recipe-menu, #confirmOverlay {
-    display: none !important;
-  }
-
-  .view:not(#view-detail) {
-    display: none !important;
-  }
-
-  #view-detail .topnav, #view-detail .hero-more-btn,
-  #view-detail .cook-mode-inline, #view-detail .nutrition-toggle {
-    display: none !important;
-  }
-
-  .detail-hero {
-    position: static;
-    height: auto;
-    aspect-ratio: auto;
-  }
-
-  .detail-hero img {
-    position: static;
-    width: 100%;
-    height: auto;
-    max-height: 320px;
-    object-fit: contain;
-  }
-
-  .detail-hero .heading {
-    position: static !important;
-    padding: 10px 0 0 !important;
-  }
+.exporting-pdf #view-detail .topnav,
+.exporting-pdf #view-detail .hero-more-btn,
+.exporting-pdf #view-detail .cook-mode-inline,
+.exporting-pdf #view-detail .nutrition-toggle {
+  visibility: hidden;
 }
 
 /* ---------- Hover tooltips ---------- */

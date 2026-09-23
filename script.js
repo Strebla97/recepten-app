@@ -1071,15 +1071,30 @@ function recipeMoreEdit() {
   openForm(recipeMoreId);
 }
 
-// Prints the recipe detail page itself (so the PDF matches the app exactly),
-// switching to it first if the menu was opened from a card. The print
-// stylesheet strips colored backgrounds so it doesn't waste ink.
-function exportRecipeToPdf() {
+// Rasterizes the recipe detail page (via html2canvas) into a PDF and
+// downloads it directly — this bypasses the browser's own print dialog
+// entirely, so its "background graphics" toggle can no longer strip out
+// the app's colors and photos the way window.print() did.
+async function exportRecipeToPdf() {
   if (!recipeMoreId) return;
   const id = recipeMoreId;
   closeRecipeMoreMenu();
   if (currentRecipeId !== id) openDetail(id);
-  setTimeout(() => window.print(), 50);
+  const r = recipes.find(x => x.id === id);
+  await new Promise(resolve => setTimeout(resolve, 50));
+  document.body.classList.add('exporting-pdf');
+  try {
+    const target = document.getElementById('view-detail');
+    const canvas = await html2canvas(target, { backgroundColor: '#ffffff', useCORS: true, scale: 2 });
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF('p', 'pt', [canvas.width, canvas.height]);
+    pdf.addImage(canvas.toDataURL('image/jpeg', 0.92), 'JPEG', 0, 0, canvas.width, canvas.height);
+    pdf.save(`${(r && r.name) || 'recept'}.pdf`);
+  } catch (e) {
+    showToast('Exporteren naar PDF is mislukt');
+  } finally {
+    document.body.classList.remove('exporting-pdf');
+  }
 }
 
 function recipeMoreOpenPlanner() {
