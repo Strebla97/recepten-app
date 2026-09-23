@@ -2836,6 +2836,11 @@ function submitShopManualItem() {
 function toggleShopSelectMode() {
   shopSelectMode = !shopSelectMode;
   shopSelectedIds.clear();
+  // Entering select mode pre-selects already-checked (bought) items, so you
+  // can immediately tap "Naar voorraad" to move what you just bought over.
+  if (shopSelectMode) {
+    shoppingList.forEach(item => { if (item.checked) shopSelectedIds.add(item.id); });
+  }
   document.getElementById('shopSelectToggleBtn').classList.toggle('active', shopSelectMode);
   document.getElementById('shopSelectToolbar').classList.toggle('open', shopSelectMode);
   updateShopSelectUI();
