@@ -1071,6 +1071,38 @@ function recipeMoreEdit() {
   openForm(recipeMoreId);
 }
 
+// Renders the recipe into a hidden print-only area and opens the browser's
+// print dialog, where "Opslaan als PDF" produces the export — no extra
+// libraries needed, and it works fully offline.
+function exportRecipeToPdf() {
+  if (!recipeMoreId) return;
+  const r = recipes.find(x => x.id === recipeMoreId);
+  closeRecipeMoreMenu();
+  if (!r) return;
+  const servings = (recipeMoreUseCurrentServings && recipeMoreId === currentRecipeId) ? currentServings : (r.baseServings || 1);
+  const factor = servings / (r.baseServings || 1);
+  const metaParts = [r.category, r.cuisine, r.difficulty].filter(Boolean);
+  if (r.time) metaParts.push(r.time + ' min');
+  metaParts.push(servings + ' porties');
+  const ingHtml = (r.ingredients || []).map(i => {
+    const amt = i.amount ? fmtNum(i.amount * factor) : '';
+    const amtUnit = [amt, i.unit].filter(Boolean).join(' ');
+    return `<li>${amtUnit ? `<strong>${escapeHtml(amtUnit)}</strong> ` : ''}${escapeHtml(i.name || '')}</li>`;
+  }).join('');
+  const stepsHtml = (r.steps || []).map(s => `<li>${escapeHtml(s)}</li>`).join('');
+  const area = document.getElementById('pdfExportArea');
+  area.innerHTML = `
+    <h1>${escapeHtml(r.name || '')}</h1>
+    <p class="pdf-meta">${escapeHtml(metaParts.join(' · '))}</p>
+    ${r.description ? `<p>${escapeHtml(r.description)}</p>` : ''}
+    <h2>Ingrediënten</h2>
+    <ul>${ingHtml}</ul>
+    <h2>Bereiding</h2>
+    <ol>${stepsHtml}</ol>
+  `;
+  window.print();
+}
+
 function recipeMoreOpenPlanner() {
   if (!recipeMoreId) return;
   const id = recipeMoreId;
@@ -2763,7 +2795,7 @@ function toggleShopItem(id) {
 
 async function clearAllShopping() {
   if (shoppingList.length === 0) return;
-  const ok = await customConfirm('Hele boodschappenlijst wissen?', 'Wissen');
+  const ok = await customConfirm('Boodschappenlijst wissen?', 'Wissen');
   if (!ok) return;
   pushUndo('boodschappenlijst gewist', 'shopping', cloneShopping());
   const removed = shoppingList;

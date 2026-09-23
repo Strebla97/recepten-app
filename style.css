@@ -2898,3 +2898,51 @@ img {
     animation: none !important;
   }
 }
+
+/* ---------- PDF export (print) ---------- */
+
+#pdfExportArea {
+  display: none;
+}
+
+@media print {
+  body > *:not(#pdfExportArea) {
+    display: none !important;
+  }
+
+  #pdfExportArea {
+    display: block !important;
+    font-family: 'Work Sans', sans-serif;
+    color: #000;
+    max-width: 680px;
+    margin: 0 auto;
+  }
+
+  #pdfExportArea h1 {
+    font-family: 'Fraunces', serif;
+    font-size: 26px;
+    margin: 0 0 6px;
+  }
+
+  #pdfExportArea .pdf-meta {
+    color: #555;
+    font-size: 13px;
+    margin: 0 0 14px;
+  }
+
+  #pdfExportArea h2 {
+    font-size: 17px;
+    margin: 22px 0 8px;
+  }
+
+  #pdfExportArea ul, #pdfExportArea ol {
+    margin: 0;
+    padding-left: 22px;
+  }
+
+  #pdfExportArea li {
+    margin-bottom: 6px;
+    line-height: 1.5;
+    font-size: 14px;
+  }
+}
