@@ -623,6 +623,9 @@ img {
 .recipe-card .body {
   position: relative;
   padding: 10px 12px 12px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 .info-btn {
@@ -667,6 +670,10 @@ img {
   font-weight: 600;
   line-height: 1.25;
   margin: 2px 0 6px;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
 }
 
 .recipe-card .meta {
@@ -674,6 +681,8 @@ img {
   align-items: center;
   justify-content: space-between;
   gap: 8px;
+  margin-top: auto;
+  padding-top: 8px;
   font-size: 12.5px;
   color: var(--ink-soft);
 }
