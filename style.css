@@ -1505,6 +1505,11 @@ img {
   justify-content: center;
 }
 
+.settings-item-icon-danger {
+  background: var(--brick-soft);
+  color: var(--brick);
+}
+
 .settings-item-text {
   flex: 1;
   text-align: left;
