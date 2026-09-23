@@ -473,6 +473,24 @@ img {
   padding: 10px 11px 5px;
 }
 
+.dropdown-section-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.label-reset-btn {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #e0574c;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .dropdown-divider {
   height: 1px;
   background: var(--card-border);
@@ -2459,24 +2477,6 @@ img {
   transform: translate(-50%, 0);
 }
 
-/* ---------- Undo button ---------- */
-
-.undo-fab {
-  flex: none;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: var(--paper-alt);
-  border: 1px solid var(--card-border);
-  color: var(--ink);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.undo-fab:active {
-  background: var(--card-border);
-}
 
 /* ---------- Confirm dialog ---------- */
 

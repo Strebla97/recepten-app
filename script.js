@@ -1176,7 +1176,21 @@ function setSortMode(mode) {
 function toggleLabelFilter(tag, btn) {
   if (activeLabelFilters.has(tag)) activeLabelFilters.delete(tag); else activeLabelFilters.add(tag);
   if (btn) btn.classList.toggle('active', activeLabelFilters.has(tag));
+  updateLabelResetBtn();
   renderHome();
+}
+
+function resetLabelFilters() {
+  if (activeLabelFilters.size === 0) return;
+  activeLabelFilters.clear();
+  document.querySelectorAll('#filterLabelChips .filter-chip').forEach(b => b.classList.remove('active'));
+  updateLabelResetBtn();
+  renderHome();
+}
+
+function updateLabelResetBtn() {
+  const btn = document.getElementById('labelResetBtn');
+  if (btn) btn.style.display = activeLabelFilters.size > 0 ? 'flex' : 'none';
 }
 
 function matchesLabelFilters(r) {
@@ -1254,6 +1268,7 @@ function renderFilterMenu() {
     diffArrow.classList.toggle('flipped', diffDir === 'difficulty-desc');
     diffArrow.title = diffDir === 'difficulty-desc' ? 'Moeilijkste eerst' : 'Makkelijkst eerst';
   }
+  updateLabelResetBtn();
   const wrap = document.getElementById('filterLabelChips');
   const tags = allUsedTags();
   const existing = [...wrap.querySelectorAll('.filter-chip')].map(b => b.dataset.tag);
