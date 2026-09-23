@@ -546,6 +546,20 @@ img {
   gap: 14px;
 }
 
+@media (min-width: 700px) {
+  .grid-wrap:has(.recipe-grid) {
+    width: 100vw;
+    margin-left: calc(50% - 50vw);
+    margin-right: calc(50% - 50vw);
+  }
+
+  .recipe-grid {
+    max-width: 1400px;
+    margin: 0 auto;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  }
+}
+
 .recipe-list {
   display: flex;
   flex-direction: column;
