@@ -475,7 +475,7 @@ img {
   border-bottom: none;
 }
 
-.recipe-row .planner-btn {
+.recipe-row .planner-btn, .recipe-row .cart-btn {
   width: 22px;
   height: 22px;
 }
@@ -582,13 +582,20 @@ img {
 
 .recipe-card .body {
   position: relative;
-  padding: 10px 40px 12px 12px;
+  padding: 10px 78px 12px 12px;
 }
 
 .recipe-card .planner-btn {
   position: absolute;
   top: 50%;
   right: 10px;
+  transform: translateY(-50%);
+}
+
+.recipe-card .cart-btn {
+  position: absolute;
+  top: 50%;
+  right: 44px;
   transform: translateY(-50%);
 }
 
@@ -609,7 +616,7 @@ img {
   justify-content: center;
 }
 
-.planner-btn {
+.planner-btn, .cart-btn {
   flex: none;
   width: 26px;
   height: 26px;

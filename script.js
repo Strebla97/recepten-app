@@ -1084,6 +1084,9 @@ const infoBtnHtml = `<span class="info-btn" title="Snelle info">i</span>`;
 const plannerBtnHtml = `<span class="planner-btn" title="Voeg toe aan planner">
   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/><path d="M12 14v4M10 16h4"/></svg>
 </span>`;
+const cartBtnHtml = `<span class="cart-btn" title="Toevoegen aan boodschappenlijst">
+  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg>
+</span>`;
 
 function buildRecipeCard(r) {
   const card = document.createElement('button');
@@ -1098,10 +1101,12 @@ function buildRecipeCard(r) {
       <div class="cat">${r.category || ''}</div>
       <div class="name serif">${r.name}</div>
       <div class="meta">${r.time ? r.time + ' min · ' : ''}${r.baseServings || 1} porties</div>
+      ${cartBtnHtml}
       ${plannerBtnHtml}
     </div>`;
   card.querySelector('.info-btn').addEventListener('click', (e) => { e.stopPropagation(); openInfoPopup(r.id); });
   card.querySelector('.planner-btn').addEventListener('click', (e) => { e.stopPropagation(); openPlannerQuickAdd(r.id, e.currentTarget); });
+  card.querySelector('.cart-btn').addEventListener('click', (e) => { e.stopPropagation(); addPlannerRecipeToShopping(r.id); });
   return card;
 }
 
@@ -1118,9 +1123,11 @@ function buildRecipeRow(r) {
       <div class="row-meta">${r.time ? r.time + ' min · ' : ''}${r.baseServings || 1} porties</div>
     </div>
     ${infoBtnHtml}
+    ${cartBtnHtml}
     ${plannerBtnHtml}`;
   row.querySelector('.info-btn').addEventListener('click', (e) => { e.stopPropagation(); openInfoPopup(r.id); });
   row.querySelector('.planner-btn').addEventListener('click', (e) => { e.stopPropagation(); openPlannerQuickAdd(r.id, e.currentTarget); });
+  row.querySelector('.cart-btn').addEventListener('click', (e) => { e.stopPropagation(); addPlannerRecipeToShopping(r.id); });
   return row;
 }
 
