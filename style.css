@@ -108,9 +108,20 @@ img {
   position: sticky;
   top: env(safe-area-inset-top, 0px);
   z-index: 20;
-  background: var(--paper);
   padding: 18px 20px 12px;
+}
+
+.topbar::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 100vw;
+  transform: translateX(-50%);
+  background: var(--paper);
   border-bottom: 1px solid var(--card-border);
+  z-index: -1;
 }
 
 .topbar-row {
