@@ -2463,8 +2463,8 @@ img {
 
 .undo-fab {
   flex: none;
-  width: 38px;
-  height: 38px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   background: var(--paper-alt);
   border: 1px solid var(--card-border);
@@ -2472,7 +2472,6 @@ img {
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-top: 2px;
 }
 
 .undo-fab:active {
