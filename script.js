@@ -878,15 +878,19 @@ function openPlannerQuickAdd(recipeId, btn) {
     </button>`);
   }
   list.innerHTML = items.join('');
+  positionFloatingMenu(menu, btn, 200);
+  menu.classList.add('open');
+}
+
+// Positions a fixed-position floating menu below its trigger button,
+// right-aligned to the button and flipped above it (with internal
+// scrolling) when there isn't enough room below the button.
+function positionFloatingMenu(menu, btn, width) {
   const rect = btn.getBoundingClientRect();
-  const menuWidth = 200;
-  let left = rect.right - menuWidth;
-  left = Math.max(10, Math.min(left, window.innerWidth - menuWidth - 10));
+  let left = rect.right - width;
+  left = Math.max(10, Math.min(left, window.innerWidth - width - 10));
   menu.style.left = left + 'px';
 
-  // Flip above the button (and cap the height with internal scrolling) when
-  // there isn't enough room below — otherwise the bottom day options can end
-  // up below the viewport with no way to scroll the fixed-position menu into view.
   menu.style.maxHeight = 'none';
   const naturalHeight = menu.scrollHeight;
   const spaceBelow = window.innerHeight - rect.bottom - 12;
@@ -899,7 +903,6 @@ function openPlannerQuickAdd(recipeId, btn) {
     menu.style.top = Math.max(12, rect.top - 8 - height) + 'px';
     menu.style.maxHeight = Math.max(120, height) + 'px';
   }
-  menu.classList.add('open');
 }
 
 function closePlannerQuickMenu() {
@@ -911,6 +914,35 @@ function pickPlannerQuickDay(key) {
   addPlannerRecipe(key, plannerQuickRecipeId);
   closePlannerQuickMenu();
   showToast('Toegevoegd aan planner');
+}
+
+let recipeMoreId = null;
+
+// The "..." menu on a recipe card/row combines the boodschappenlijst and
+// planner shortcuts that used to be two separate buttons.
+function openRecipeMoreMenu(recipeId, btn) {
+  recipeMoreId = recipeId;
+  const menu = document.getElementById('recipeMoreMenu');
+  positionFloatingMenu(menu, btn, 200);
+  menu.classList.add('open');
+}
+
+function closeRecipeMoreMenu() {
+  document.getElementById('recipeMoreMenu').classList.remove('open');
+}
+
+function recipeMoreAddToShopping() {
+  if (!recipeMoreId) return;
+  addPlannerRecipeToShopping(recipeMoreId);
+  closeRecipeMoreMenu();
+}
+
+function recipeMoreOpenPlanner() {
+  if (!recipeMoreId) return;
+  const id = recipeMoreId;
+  const anchor = document.getElementById('recipeMoreMenu');
+  closeRecipeMoreMenu();
+  openPlannerQuickAdd(id, anchor);
 }
 
 function renderPlannerPickList() {
@@ -983,6 +1015,7 @@ document.addEventListener('click', (e) => {
   if (!e.target.closest('.dropdown-wrap')) closeAllDropdowns();
   if (!e.target.closest('.planner-quick-menu') && !e.target.closest('.planner-btn') && !e.target.closest('.planner-fab')) closePlannerQuickMenu();
   if (!e.target.closest('.add-recipe-menu') && !e.target.closest('#addRecipeBtn')) closeAddRecipeMenu();
+  if (!e.target.closest('.recipe-more-menu') && !e.target.closest('.more-btn')) closeRecipeMoreMenu();
 });
 
 function allUsedTags() {
@@ -1150,11 +1183,8 @@ function phSvg(size) {
 }
 
 const infoBtnHtml = `<span class="info-btn" title="Snelle info">i</span>`;
-const plannerBtnHtml = `<span class="planner-btn" title="Voeg toe aan planner">
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/><path d="M12 14v4M10 16h4"/></svg>
-</span>`;
-const cartBtnHtml = `<span class="cart-btn" title="Toevoegen aan boodschappenlijst">
-  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg>
+const moreBtnHtml = `<span class="more-btn" title="Meer opties">
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>
 </span>`;
 
 function buildRecipeCard(r) {
@@ -1169,15 +1199,13 @@ function buildRecipeCard(r) {
     <div class="body">
       <div class="cat">${r.category || ''}</div>
       <div class="name serif">${r.name}</div>
-      <div class="meta">${r.time ? r.time + ' min · ' : ''}${r.baseServings || 1} porties</div>
-      <div class="card-actions">
-        ${cartBtnHtml}
-        ${plannerBtnHtml}
+      <div class="meta">
+        <span>${r.time ? r.time + ' min · ' : ''}${r.baseServings || 1} porties</span>
+        ${moreBtnHtml}
       </div>
     </div>`;
   card.querySelector('.info-btn').addEventListener('click', (e) => { e.stopPropagation(); openInfoPopup(r.id); });
-  card.querySelector('.planner-btn').addEventListener('click', (e) => { e.stopPropagation(); openPlannerQuickAdd(r.id, e.currentTarget); });
-  card.querySelector('.cart-btn').addEventListener('click', (e) => { e.stopPropagation(); addPlannerRecipeToShopping(r.id); });
+  card.querySelector('.more-btn').addEventListener('click', (e) => { e.stopPropagation(); openRecipeMoreMenu(r.id, e.currentTarget); });
   return card;
 }
 
@@ -1194,11 +1222,9 @@ function buildRecipeRow(r) {
       <div class="row-meta">${r.time ? r.time + ' min · ' : ''}${r.baseServings || 1} porties</div>
     </div>
     ${infoBtnHtml}
-    ${cartBtnHtml}
-    ${plannerBtnHtml}`;
+    ${moreBtnHtml}`;
   row.querySelector('.info-btn').addEventListener('click', (e) => { e.stopPropagation(); openInfoPopup(r.id); });
-  row.querySelector('.planner-btn').addEventListener('click', (e) => { e.stopPropagation(); openPlannerQuickAdd(r.id, e.currentTarget); });
-  row.querySelector('.cart-btn').addEventListener('click', (e) => { e.stopPropagation(); addPlannerRecipeToShopping(r.id); });
+  row.querySelector('.more-btn').addEventListener('click', (e) => { e.stopPropagation(); openRecipeMoreMenu(r.id, e.currentTarget); });
   return row;
 }
 
