@@ -2285,6 +2285,50 @@ img {
   padding: 0 30px;
 }
 
+/* ---------- Voorraad (stock) ---------- */
+
+.stock-stepper {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.stock-stepper button {
+  width: 24px;
+  height: 24px;
+  flex: none;
+  border-radius: 50%;
+  border: 1px solid var(--card-border);
+  background: var(--paper-alt);
+  color: var(--ink);
+  font-size: 15px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stock-stepper-count {
+  min-width: 52px;
+  text-align: center;
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--green);
+}
+
+.stock-item-cart {
+  flex: none;
+  background: none;
+  border: none;
+  color: var(--ink-soft);
+  padding: 4px;
+}
+
+.stock-empty-item .stock-stepper-count {
+  color: var(--brick);
+}
+
 /* ---------- Planner ---------- */
 
 .planner-week-nav {

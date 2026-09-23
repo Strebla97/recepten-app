@@ -161,6 +161,11 @@ async function initCloudSync(userId) {
     safeSet('rb_shopping', shoppingList);
   } catch (e) { /* keep the local cache we already loaded */ }
   try {
+    const snap3 = await db.collection('stock').get();
+    stockList = snap3.docs.map(d => ({ id: d.id, ...d.data() }));
+    safeSet('rb_stock', stockList);
+  } catch (e) { /* keep the local cache we already loaded */ }
+  try {
     const catDoc = await db.collection('meta').doc('categories').get();
     const data = catDoc && catDoc.data ? catDoc.data() : null;
     if (data && Array.isArray(data.order) && data.order.length) {
@@ -187,6 +192,7 @@ async function initCloudSync(userId) {
   renderHome();
   updateShopBadge();
   if (currentView === 'shop') renderShop();
+  if (currentView === 'stock') renderStock();
 }
 
 // Gathers every per-device preference (theme, weekstart, view/sort mode,
@@ -285,6 +291,7 @@ function safeSet(key, value) {
 async function initStorage() {
   recipes = safeGet('rb_recipes', []);
   shoppingList = safeGet('rb_shopping', []);
+  stockList = safeGet('rb_stock', []);
   renderHome();
   updateShopBadge();
 }
@@ -471,12 +478,14 @@ function switchView(name) {
   if (name !== 'planner' && plannerSelectMode) togglePlannerSelectMode();
   if (name !== 'shop' && shopSelectMode) toggleShopSelectMode();
   if (name !== 'home' && recipeSelectMode) toggleRecipeSelectMode();
+  if (name !== 'stock' && stockSelectMode) toggleStockSelectMode();
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   document.getElementById('view-' + name).classList.add('active');
   currentView = name;
   document.getElementById('tabHome').classList.toggle('active', name === 'home');
   document.getElementById('tabShop').classList.toggle('active', name === 'shop');
   document.getElementById('tabPlanner').classList.toggle('active', name === 'planner');
+  document.getElementById('tabStock').classList.toggle('active', name === 'stock');
   const noTabbar = ['form', 'settings', 'settings-categories', 'settings-units', 'settings-shopcategories', 'settings-shopstore', 'settings-privacy', 'help', 'help-kooktechnieken'];
   document.getElementById('tabbar').style.display = noTabbar.includes(name) ? 'none' : 'flex';
   updateUndoButton();
@@ -2890,6 +2899,302 @@ function updateShopBadge() {
   const badge = document.getElementById('shopBadge');
   const openCount = shoppingList.filter(x => !x.checked).length;
   badge.style.display = openCount > 0 ? 'inline' : 'none';
+}
+
+/* ---------------- Voorraad (pantry stock) ---------------- */
+// Home stock: what's already in the fridge/freezer/pantry. Shares the same
+// category taxonomy as the shopping list (matchShopCategory) so the two
+// pages feel like one system, and items can move between them either way:
+// low/empty stock -> shopping list, checked-off shopping -> stock.
+let stockList = safeGet('rb_stock', []);
+let activeStockCategory = 'Alles';
+let stockSortMode = safeGet('rb_stock_sortmode', 'category');
+let stockSelectMode = false;
+let stockSelectedIds = new Set();
+
+function saveStock() { safeSet('rb_stock', stockList); }
+
+function openStock() { renderStock(); switchView('stock'); }
+
+function buildStockRow(item) {
+  const li = document.createElement('li');
+  if (stockSelectMode) {
+    const selected = stockSelectedIds.has(item.id);
+    li.className = 'selectable' + (selected ? ' selected' : '');
+    li.onclick = () => toggleStockItemSelected(item.id);
+    li.innerHTML = `
+      <button class="shop-check ${selected ? 'checked' : ''}" onclick="event.stopPropagation(); toggleStockItemSelected('${item.id}')">
+        ${selected ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>' : ''}
+      </button>
+      <span class="shop-item-name">${item.name}</span>
+      <span class="shop-item-amt">${fmtShopAmount(item.amount, item.unit)}</span>`;
+    return li;
+  }
+  li.className = (item.amount === 0) ? 'stock-empty-item' : '';
+  li.innerHTML = `
+    <div class="stock-stepper">
+      <button onclick="changeStockAmount('${item.id}',-1)" title="Minder">−</button>
+      <span class="stock-stepper-count">${fmtShopAmount(item.amount, item.unit) || '—'}</span>
+      <button onclick="changeStockAmount('${item.id}',1)" title="Meer">+</button>
+    </div>
+    <span class="shop-item-name">${item.name}</span>
+    <button class="stock-item-cart" onclick="addStockItemToShopping('${item.id}')" title="Toevoegen aan boodschappenlijst">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg>
+    </button>`;
+  return li;
+}
+
+function renderStock() {
+  const list = document.getElementById('stockList');
+  const empty = document.getElementById('stockEmpty');
+  list.innerHTML = '';
+  renderStockFilterMenu();
+  renderStockChips();
+  if (stockList.length === 0) {
+    empty.style.display = 'block';
+    list.style.display = 'none';
+    return;
+  }
+
+  const filtered = activeStockCategory === 'Alles'
+    ? stockList
+    : stockList.filter(item => matchShopCategory(item.name) === activeStockCategory);
+
+  if (filtered.length === 0) {
+    empty.style.display = 'block';
+    list.style.display = 'none';
+    return;
+  }
+  empty.style.display = 'none';
+  list.style.display = 'block';
+
+  if (stockSortMode === 'alpha') {
+    filtered.slice().sort((a, b) => (a.name || '').localeCompare(b.name || '')).forEach(item => {
+      list.appendChild(buildStockRow(item));
+    });
+    return;
+  }
+
+  const groups = {};
+  filtered.forEach(item => {
+    const cat = matchShopCategory(item.name);
+    (groups[cat] = groups[cat] || []).push(item);
+  });
+  const orderedCats = [...shopCategoryOrder];
+  Object.keys(groups).forEach(c => { if (!orderedCats.includes(c)) orderedCats.push(c); });
+  orderedCats.forEach(cat => {
+    const items = groups[cat];
+    if (!items || items.length === 0) return;
+    const header = document.createElement('li');
+    header.className = 'shop-group-header';
+    header.textContent = cat;
+    list.appendChild(header);
+    items.forEach(item => list.appendChild(buildStockRow(item)));
+  });
+}
+
+function renderStockChips() {
+  const wrap = document.getElementById('stockCategoryChips');
+  if (!wrap) return;
+  const used = new Set(stockList.map(item => matchShopCategory(item.name)));
+  const orderedUsed = shopCategoryOrder.filter(c => used.has(c));
+  used.forEach(c => { if (!orderedUsed.includes(c)) orderedUsed.push(c); });
+  if (!orderedUsed.includes(activeStockCategory) && activeStockCategory !== 'Alles') activeStockCategory = 'Alles';
+  const cats = ['Alles', ...orderedUsed];
+  wrap.innerHTML = '';
+  cats.forEach(c => {
+    const b = document.createElement('button');
+    b.className = 'chip' + (activeStockCategory === c ? ' active' : '');
+    b.textContent = c;
+    b.onclick = () => { activeStockCategory = c; renderStock(); };
+    wrap.appendChild(b);
+  });
+  updateStockChipsFade();
+}
+
+function updateStockChipsFade() {
+  const scrollEl = document.getElementById('stockCategoryChips');
+  const fade = document.getElementById('stockChipsFade');
+  if (!scrollEl || !fade) return;
+  const hasOverflow = scrollEl.scrollWidth > scrollEl.clientWidth + 1;
+  const atEnd = scrollEl.scrollLeft + scrollEl.clientWidth >= scrollEl.scrollWidth - 1;
+  fade.style.opacity = (hasOverflow && !atEnd) ? '1' : '0';
+}
+
+document.getElementById('stockCategoryChips').addEventListener('scroll', updateStockChipsFade);
+
+function setStockSortMode(mode) {
+  stockSortMode = mode;
+  safeSet('rb_stock_sortmode', stockSortMode);
+  renderStock();
+}
+
+function renderStockFilterMenu() {
+  document.querySelectorAll('#stockFilterMenu [data-stocksort]').forEach(b => {
+    b.classList.toggle('active', b.dataset.stocksort === stockSortMode);
+  });
+}
+
+// Adds to (or tops up) an existing stock item matched by name, otherwise
+// creates a new one — used both by the manual-entry form and by moving
+// checked-off shopping items over.
+function addOrMergeStockItem(name, amount, unit) {
+  const existing = stockList.find(i => i.name.toLowerCase() === name.toLowerCase());
+  if (existing) {
+    if (typeof existing.amount === 'number' && typeof amount === 'number' && existing.unit === unit) {
+      existing.amount += amount;
+    } else if (unit) {
+      existing.unit = unit;
+      if (typeof amount === 'number') existing.amount = amount;
+    }
+    return existing;
+  }
+  const item = { id: uid(), name, amount: (typeof amount === 'number' ? amount : null), unit: unit || null };
+  stockList.push(item);
+  return item;
+}
+
+function changeStockAmount(id, delta) {
+  const item = stockList.find(x => x.id === id);
+  if (!item) return;
+  if (typeof item.amount !== 'number') { item.amount = delta > 0 ? 1 : 0; }
+  else item.amount = Math.max(0, item.amount + delta);
+  saveStock();
+  renderStock();
+  if (db) { const { id: _id, ...data } = item; db.collection('stock').doc(id).set(data).catch(() => {}); }
+}
+
+function addStockItemToShopping(id) {
+  const item = stockList.find(x => x.id === id);
+  if (!item) return;
+  const shopItem = { id: uid(), name: item.name, amount: null, unit: null, checked: false };
+  shoppingList.push(shopItem);
+  saveShopping();
+  updateShopBadge();
+  showToast('Toegevoegd aan boodschappenlijst');
+  if (db) { const { id: _id, ...data } = shopItem; db.collection('shopping').doc(shopItem.id).set(data).catch(() => {}); }
+}
+
+function toggleStockManualInput() {
+  const row = document.getElementById('stockManualRow');
+  const toggle = document.getElementById('stockManualToggle');
+  row.style.display = 'flex';
+  toggle.style.display = 'none';
+  document.getElementById('stockManualInput').focus();
+}
+
+function submitStockManualItem() {
+  const input = document.getElementById('stockManualInput');
+  const amountInput = document.getElementById('stockManualAmountInput');
+  const name = input.value.trim();
+  if (!name) { input.focus(); return; }
+  const amountText = amountInput.value.trim();
+  const item = { id: uid(), name, amount: null, unit: amountText || null };
+  stockList.push(item);
+  saveStock();
+  renderStock();
+  input.value = '';
+  amountInput.value = '';
+  document.getElementById('stockManualRow').style.display = 'none';
+  document.getElementById('stockManualToggle').style.display = 'block';
+  if (db) { const { id, ...data } = item; db.collection('stock').doc(id).set(data).catch(() => {}); }
+}
+
+function toggleStockSelectMode() {
+  stockSelectMode = !stockSelectMode;
+  stockSelectedIds.clear();
+  document.getElementById('stockSelectToggleBtn').classList.toggle('active', stockSelectMode);
+  document.getElementById('stockSelectToolbar').classList.toggle('open', stockSelectMode);
+  updateStockSelectUI();
+  renderStock();
+}
+
+function toggleStockItemSelected(id) {
+  if (stockSelectedIds.has(id)) stockSelectedIds.delete(id);
+  else stockSelectedIds.add(id);
+  updateStockSelectUI();
+  renderStock();
+}
+
+function selectAllStockItems() {
+  const visibleIds = (activeStockCategory === 'Alles'
+    ? stockList
+    : stockList.filter(item => matchShopCategory(item.name) === activeStockCategory)
+  ).map(item => item.id);
+  const allSelected = visibleIds.length > 0 && visibleIds.every(id => stockSelectedIds.has(id));
+  if (allSelected) stockSelectedIds.clear();
+  else visibleIds.forEach(id => stockSelectedIds.add(id));
+  updateStockSelectUI();
+  renderStock();
+}
+
+function updateStockSelectUI() {
+  const disabled = stockSelectedIds.size === 0;
+  ['stockDeleteSelectionBtn', 'stockToShoppingBtn'].forEach(id => {
+    const btn = document.getElementById(id);
+    if (btn) btn.disabled = disabled;
+  });
+}
+
+async function deleteSelectedStockItems() {
+  if (stockSelectedIds.size === 0) return;
+  const n = stockSelectedIds.size;
+  const ok = await customConfirm(n === 1 ? '1 product verwijderen?' : `${n} producten verwijderen?`, 'Verwijderen');
+  if (!ok) return;
+  const removed = stockList.filter(item => stockSelectedIds.has(item.id));
+  stockList = stockList.filter(item => !stockSelectedIds.has(item.id));
+  stockSelectedIds.clear();
+  saveStock();
+  if (stockList.length === 0) toggleStockSelectMode();
+  else { updateStockSelectUI(); renderStock(); }
+  if (db) removed.forEach(item => db.collection('stock').doc(item.id).delete().catch(() => {}));
+  showToast('Verwijderd uit voorraad');
+}
+
+function addSelectedStockToShopping() {
+  if (stockSelectedIds.size === 0) return;
+  const touched = [];
+  stockSelectedIds.forEach(id => {
+    const item = stockList.find(x => x.id === id);
+    if (!item) return;
+    const shopItem = { id: uid(), name: item.name, amount: null, unit: null, checked: false };
+    shoppingList.push(shopItem);
+    touched.push(shopItem);
+  });
+  saveShopping();
+  updateShopBadge();
+  toggleStockSelectMode();
+  showToast('Toegevoegd aan boodschappenlijst');
+  if (db) touched.forEach(item => { const { id, ...data } = item; db.collection('shopping').doc(id).set(data).catch(() => {}); });
+}
+
+// Shop -> stock: moves the selected shopping items into the pantry
+// (merging into a matching stock item if one exists) and removes them
+// from the shopping list.
+function moveSelectedShopItemsToStock() {
+  if (shopSelectedIds.size === 0) return;
+  const moved = [];
+  shopSelectedIds.forEach(id => {
+    const item = shoppingList.find(x => x.id === id);
+    if (!item) return;
+    const stockItem = addOrMergeStockItem(item.name, item.amount, item.unit);
+    moved.push({ shopId: id, stockItem });
+  });
+  saveStock();
+  shoppingList = shoppingList.filter(item => !shopSelectedIds.has(item.id));
+  shopSelectedIds.clear();
+  saveShopping();
+  updateShopBadge();
+  if (shoppingList.length === 0) toggleShopSelectMode();
+  else { updateShopSelectUI(); renderShop(); }
+  showToast('Naar voorraad verplaatst');
+  if (db) {
+    moved.forEach(({ shopId, stockItem }) => {
+      db.collection('shopping').doc(shopId).delete().catch(() => {});
+      const { id, ...data } = stockItem;
+      db.collection('stock').doc(id).set(data).catch(() => {});
+    });
+  }
 }
 
 /* ---------------- Settings ---------------- */
