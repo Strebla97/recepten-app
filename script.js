@@ -1195,14 +1195,14 @@ function buildRecipeCard(r) {
     <div class="thumb">
       ${r.photo ? `<img src="${r.photo}">` : `<div class="ph">${phSvg(30)}</div>`}
       ${infoBtnHtml}
+      ${moreBtnHtml}
     </div>
     <div class="body">
-      <div class="cat">${r.category || ''}</div>
-      <div class="name serif">${r.name}</div>
-      <div class="meta">
-        <span>${r.time ? r.time + ' min · ' : ''}${r.baseServings || 1} porties</span>
-        ${moreBtnHtml}
+      <div class="cat-row">
+        <span class="cat">${r.category || ''}</span>
+        <span class="card-meta-inline">${r.time ? r.time + ' min · ' : ''}${r.baseServings || 1} porties</span>
       </div>
+      <div class="name-wrap"><div class="name serif">${r.name}</div></div>
     </div>`;
   card.querySelector('.info-btn').addEventListener('click', (e) => { e.stopPropagation(); openInfoPopup(r.id); });
   card.querySelector('.more-btn').addEventListener('click', (e) => { e.stopPropagation(); openRecipeMoreMenu(r.id, e.currentTarget); });
