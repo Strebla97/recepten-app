@@ -88,6 +88,13 @@ button {
   color: inherit;
   cursor: pointer;
   touch-action: manipulation;
+  -webkit-appearance: none;
+  appearance: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:active, button:focus {
+  outline: none;
 }
 
 input, select, textarea {
@@ -901,6 +908,12 @@ img {
   font-size: 11px;
   font-weight: 600;
   white-space: nowrap;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.tab:active, .tab:focus, .tab:focus-visible {
+  background: none;
+  outline: none;
 }
 
 .tab.active {
