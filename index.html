@@ -48,11 +48,11 @@
         </div>
         <div class="view-toggle-row">
           <div class="dropdown-wrap">
-            <button class="view-toggle-btn" id="viewModeBtn" onclick="event.stopPropagation(); toggleDropdown('viewModeMenu')" title="Weergave">
-              <svg id="viewModeIconGrid" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
-              <svg id="viewModeIconList" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="display:none"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
+            <button class="view-toggle-btn" id="filterBtn" onclick="event.stopPropagation(); toggleDropdown('filterMenu')" title="Weergave & filters">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16M7 12h10M10 19h4"/></svg>
             </button>
-            <div class="dropdown-menu" id="viewModeMenu">
+            <div class="dropdown-menu dropdown-menu-wide" id="filterMenu">
+              <div class="dropdown-section-label">Weergave</div>
               <button class="dropdown-item" data-mode="grid" onclick="setViewMode('grid')">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
                 Raster
@@ -61,13 +61,7 @@
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
                 Lijst
               </button>
-            </div>
-          </div>
-          <div class="dropdown-wrap">
-            <button class="view-toggle-btn" id="filterBtn" onclick="event.stopPropagation(); toggleDropdown('filterMenu')" title="Filters">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16M7 12h10M10 19h4"/></svg>
-            </button>
-            <div class="dropdown-menu dropdown-menu-wide" id="filterMenu">
+              <div class="dropdown-divider"></div>
               <div class="dropdown-section-label">Sorteren</div>
               <button class="dropdown-item sort-toggle-row" data-sort-group="name" onclick="toggleSortDirection('name')">
                 <span>Naam</span>

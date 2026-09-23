@@ -1097,9 +1097,7 @@ function setViewMode(mode) {
 }
 
 function updateViewModeUI() {
-  document.getElementById('viewModeIconGrid').style.display = viewMode === 'grid' ? '' : 'none';
-  document.getElementById('viewModeIconList').style.display = viewMode === 'list' ? '' : 'none';
-  document.querySelectorAll('#viewModeMenu [data-mode]').forEach(b => {
+  document.querySelectorAll('#filterMenu [data-mode]').forEach(b => {
     b.classList.toggle('active', b.dataset.mode === viewMode);
   });
 }
