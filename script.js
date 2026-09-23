@@ -1101,8 +1101,10 @@ function buildRecipeCard(r) {
       <div class="cat">${r.category || ''}</div>
       <div class="name serif">${r.name}</div>
       <div class="meta">${r.time ? r.time + ' min · ' : ''}${r.baseServings || 1} porties</div>
-      ${cartBtnHtml}
-      ${plannerBtnHtml}
+      <div class="card-actions">
+        ${cartBtnHtml}
+        ${plannerBtnHtml}
+      </div>
     </div>`;
   card.querySelector('.info-btn').addEventListener('click', (e) => { e.stopPropagation(); openInfoPopup(r.id); });
   card.querySelector('.planner-btn').addEventListener('click', (e) => { e.stopPropagation(); openPlannerQuickAdd(r.id, e.currentTarget); });

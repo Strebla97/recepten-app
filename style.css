@@ -582,21 +582,17 @@ img {
 
 .recipe-card .body {
   position: relative;
-  padding: 10px 78px 12px 12px;
+  padding: 10px 44px 12px 12px;
 }
 
-.recipe-card .planner-btn {
+.recipe-card .card-actions {
   position: absolute;
   top: 50%;
   right: 10px;
   transform: translateY(-50%);
-}
-
-.recipe-card .cart-btn {
-  position: absolute;
-  top: 50%;
-  right: 44px;
-  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .info-btn {
