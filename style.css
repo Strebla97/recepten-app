@@ -2042,9 +2042,9 @@ img {
   gap: 8px;
 }
 
-.shop-filter-row {
-  margin: 0 20px 12px;
-  justify-content: flex-end;
+.shop-chips-row {
+  margin: 0 0 12px;
+  padding: 0 20px;
 }
 
 .shop-header h2 {

@@ -2285,6 +2285,7 @@ let shopStores = safeGet('rb_shopstores', null) || [];
 let activeShopStoreId = safeGet('rb_active_shopstore', null);
 let shopSortMode = safeGet('rb_shop_sortmode', 'category');
 let editingShopStoreId = null;
+let activeShopCategory = 'Alles';
 
 function saveShopCategoryOrder() { safeSet('rb_shopcatorder', shopCategoryOrder); syncSettingsToCloud(); }
 function saveShopStores() { safeSet('rb_shopstores', shopStores); syncSettingsToCloud(); }
@@ -2330,7 +2331,18 @@ function renderShop() {
   const empty = document.getElementById('shopEmpty');
   list.innerHTML = '';
   renderShopFilterMenu();
+  renderShopChips();
   if (shoppingList.length === 0) {
+    empty.style.display = 'block';
+    list.style.display = 'none';
+    return;
+  }
+
+  const filtered = activeShopCategory === 'Alles'
+    ? shoppingList
+    : shoppingList.filter(item => matchShopCategory(item.name) === activeShopCategory);
+
+  if (filtered.length === 0) {
     empty.style.display = 'block';
     list.style.display = 'none';
     return;
@@ -2339,14 +2351,14 @@ function renderShop() {
   list.style.display = 'block';
 
   if (shopSortMode === 'alpha') {
-    shoppingList.slice().sort((a, b) => (a.name || '').localeCompare(b.name || '')).forEach(item => {
+    filtered.slice().sort((a, b) => (a.name || '').localeCompare(b.name || '')).forEach(item => {
       list.appendChild(buildShopRow(item));
     });
     return;
   }
 
   const groups = {};
-  shoppingList.forEach(item => {
+  filtered.forEach(item => {
     const cat = matchShopCategory(item.name);
     (groups[cat] = groups[cat] || []).push(item);
   });
@@ -2364,6 +2376,36 @@ function renderShop() {
     items.forEach(item => list.appendChild(buildShopRow(item)));
   });
 }
+
+function renderShopChips() {
+  const wrap = document.getElementById('shopCategoryChips');
+  if (!wrap) return;
+  const used = new Set(shoppingList.map(item => matchShopCategory(item.name)));
+  const orderedUsed = shopCategoryOrder.filter(c => used.has(c));
+  used.forEach(c => { if (!orderedUsed.includes(c)) orderedUsed.push(c); });
+  if (!orderedUsed.includes(activeShopCategory) && activeShopCategory !== 'Alles') activeShopCategory = 'Alles';
+  const cats = ['Alles', ...orderedUsed];
+  wrap.innerHTML = '';
+  cats.forEach(c => {
+    const b = document.createElement('button');
+    b.className = 'chip' + (activeShopCategory === c ? ' active' : '');
+    b.textContent = c;
+    b.onclick = () => { activeShopCategory = c; renderShop(); };
+    wrap.appendChild(b);
+  });
+  updateShopChipsFade();
+}
+
+function updateShopChipsFade() {
+  const scrollEl = document.getElementById('shopCategoryChips');
+  const fade = document.getElementById('shopChipsFade');
+  if (!scrollEl || !fade) return;
+  const hasOverflow = scrollEl.scrollWidth > scrollEl.clientWidth + 1;
+  const atEnd = scrollEl.scrollLeft + scrollEl.clientWidth >= scrollEl.scrollWidth - 1;
+  fade.style.opacity = (hasOverflow && !atEnd) ? '1' : '0';
+}
+
+document.getElementById('shopCategoryChips').addEventListener('scroll', updateShopChipsFade);
 
 function setShopSortMode(mode) {
   shopSortMode = mode;

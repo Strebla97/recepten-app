@@ -306,18 +306,24 @@
       <button class="btn btn-ghost" onclick="clearCheckedShopping()">Wis afgevinkte</button>
       <button class="btn btn-ghost" onclick="clearAllShopping()">Wis alles</button>
     </div>
-    <div class="view-toggle-row shop-filter-row">
-      <div class="dropdown-wrap">
-        <button class="view-toggle-btn" id="shopFilterBtn" onclick="event.stopPropagation(); toggleDropdown('shopFilterMenu')" title="Filters">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16M7 12h10M10 19h4"/></svg>
-        </button>
-        <div class="dropdown-menu dropdown-menu-wide" id="shopFilterMenu">
-          <div class="dropdown-section-label">Sorteren</div>
-          <button class="dropdown-item" data-shopsort="category" onclick="setShopSortMode('category')">Op categorie</button>
-          <button class="dropdown-item" data-shopsort="alpha" onclick="setShopSortMode('alpha')">Alfabetisch (A-Z)</button>
-          <div class="dropdown-divider"></div>
-          <div class="dropdown-section-label">Winkel</div>
-          <div id="shopStoreFilterList"></div>
+    <div class="chips-row shop-chips-row">
+      <div class="chips-scroll">
+        <div class="chips" id="shopCategoryChips"></div>
+        <div class="chips-fade" id="shopChipsFade" aria-hidden="true"></div>
+      </div>
+      <div class="view-toggle-row">
+        <div class="dropdown-wrap">
+          <button class="view-toggle-btn" id="shopFilterBtn" onclick="event.stopPropagation(); toggleDropdown('shopFilterMenu')" title="Filters">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16M7 12h10M10 19h4"/></svg>
+          </button>
+          <div class="dropdown-menu dropdown-menu-wide" id="shopFilterMenu">
+            <div class="dropdown-section-label">Sorteren</div>
+            <button class="dropdown-item" data-shopsort="category" onclick="setShopSortMode('category')">Op categorie</button>
+            <button class="dropdown-item" data-shopsort="alpha" onclick="setShopSortMode('alpha')">Alfabetisch (A-Z)</button>
+            <div class="dropdown-divider"></div>
+            <div class="dropdown-section-label">Winkel</div>
+            <div id="shopStoreFilterList"></div>
+          </div>
         </div>
       </div>
     </div>
