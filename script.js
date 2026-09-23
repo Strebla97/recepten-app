@@ -995,6 +995,8 @@ function matchesLabelFilters(r) {
   return [...activeLabelFilters].every(f => tags.includes(f.toLowerCase()));
 }
 
+const DIFFICULTY_RANK = { 'Makkelijk': 0, 'Gemiddeld': 1, 'Moeilijk': 2 };
+
 function sortRecipeList(list) {
   const arr = list.slice();
   switch (sortMode) {
@@ -1002,6 +1004,13 @@ function sortRecipeList(list) {
     case 'name-asc': return arr.sort((a, b) => a.name.localeCompare(b.name));
     case 'name-desc': return arr.sort((a, b) => b.name.localeCompare(a.name));
     case 'time-asc': return arr.sort((a, b) => (a.time || 0) - (b.time || 0));
+    case 'difficulty-asc': return arr.sort((a, b) => {
+      const da = DIFFICULTY_RANK[a.difficulty], db = DIFFICULTY_RANK[b.difficulty];
+      if (da === undefined && db === undefined) return 0;
+      if (da === undefined) return 1;
+      if (db === undefined) return -1;
+      return da - db;
+    });
     case 'newest':
     default: return arr.reverse();
   }
