@@ -1345,9 +1345,11 @@ img {
   font-weight: 700;
   color: var(--green);
   background: var(--green-soft);
-  padding: 1px 5px;
-  border-radius: 5px;
+  padding: 0 3px;
+  border-radius: 4px;
   white-space: nowrap;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
 }
 
 .step-hl-ing {
@@ -2149,6 +2151,10 @@ img {
   border-radius: 8px;
   margin: 0 -8px;
   padding: 12px 8px;
+}
+
+.shop-manual-add {
+  padding: 10px 20px 0;
 }
 
 .shop-list {

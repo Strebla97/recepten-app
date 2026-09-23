@@ -1673,7 +1673,7 @@ function renderDetail() {
   stepsList.innerHTML = '';
   (r.steps || []).forEach(s => {
     const li = document.createElement('li');
-    li.innerHTML = highlightStepText(s, r.ingredients);
+    li.innerHTML = `<span class="step-text">${highlightStepText(s, r.ingredients)}</span>`;
     stepsList.appendChild(li);
   });
   const extraGallery = document.getElementById('detailExtraPhotos');
@@ -2757,6 +2757,29 @@ async function clearAllShopping() {
   saveShopping(); updateShopBadge();
   if (shopSelectMode) toggleShopSelectMode(); else renderShop();
   if (db) removed.forEach(item => db.collection('shopping').doc(item.id).delete().catch(() => {}));
+}
+
+function toggleShopManualInput() {
+  const row = document.getElementById('shopManualRow');
+  const toggle = document.getElementById('shopManualToggle');
+  row.style.display = 'flex';
+  toggle.style.display = 'none';
+  document.getElementById('shopManualInput').focus();
+}
+
+function submitShopManualItem() {
+  const input = document.getElementById('shopManualInput');
+  const name = input.value.trim();
+  if (!name) { input.focus(); return; }
+  const item = { id: uid(), name, amount: null, unit: null, checked: false };
+  shoppingList.push(item);
+  saveShopping();
+  updateShopBadge();
+  renderShop();
+  input.value = '';
+  document.getElementById('shopManualRow').style.display = 'none';
+  document.getElementById('shopManualToggle').style.display = 'block';
+  if (db) { const { id, ...data } = item; db.collection('shopping').doc(id).set(data).catch(() => {}); }
 }
 
 function toggleShopSelectMode() {
