@@ -1223,17 +1223,32 @@ function sortRecipeList(list) {
       if (db === undefined) return -1;
       return db - da;
     });
+    case 'calories-asc': return arr.sort((a, b) => {
+      const ka = calcNutrition(a, 1), kb = calcNutrition(b, 1);
+      if (!ka.matched && !kb.matched) return 0;
+      if (!ka.matched) return 1;
+      if (!kb.matched) return -1;
+      return ka.kcal - kb.kcal;
+    });
+    case 'calories-desc': return arr.sort((a, b) => {
+      const ka = calcNutrition(a, 1), kb = calcNutrition(b, 1);
+      if (!ka.matched && !kb.matched) return 0;
+      if (!ka.matched) return 1;
+      if (!kb.matched) return -1;
+      return kb.kcal - ka.kcal;
+    });
     case 'newest':
     default: return arr.reverse();
   }
 }
 
-const SORT_GROUP_DEFAULT = { name: 'name-asc', date: 'newest', time: 'time-asc', difficulty: 'difficulty-asc' };
-const SORT_GROUP_ALT = { name: 'name-desc', date: 'oldest', time: 'time-desc', difficulty: 'difficulty-desc' };
+const SORT_GROUP_DEFAULT = { name: 'name-asc', date: 'newest', time: 'time-asc', difficulty: 'difficulty-asc', calories: 'calories-asc' };
+const SORT_GROUP_ALT = { name: 'name-desc', date: 'oldest', time: 'time-desc', difficulty: 'difficulty-desc', calories: 'calories-desc' };
 const SORT_GROUP_LABELS = {
   name: { asc: 'A-Z', desc: 'Z-A' },
   date: { asc: 'Nieuwste', desc: 'Oudste' },
-  time: { asc: 'Kortste', desc: 'Langste' }
+  time: { asc: 'Kortste', desc: 'Langste' },
+  calories: { asc: 'Minst', desc: 'Meest' }
 };
 
 // Each sort row remembers its own direction independently (in sortDirections).
@@ -1252,7 +1267,7 @@ function toggleSortDirection(group) {
 }
 
 function renderFilterMenu() {
-  ['name', 'date', 'time'].forEach(group => {
+  ['name', 'date', 'time', 'calories'].forEach(group => {
     const def = SORT_GROUP_DEFAULT[group], alt = SORT_GROUP_ALT[group];
     const dir = sortDirections[group] || def;
     const row = document.querySelector(`[data-sort-group="${group}"]`);
