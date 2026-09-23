@@ -2955,6 +2955,12 @@ img {
    everywhere instead of the app's colored fills, to save ink. */
 
 @media print {
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+  }
+
   .tabbar, .dropdown-backdrop, #recipeMoreMenu, #plannerQuickMenu,
   #plannerPickOverlay, #infoOverlay, #photoLightbox, #toast,
   .add-recipe-menu, #confirmOverlay {
@@ -2974,11 +2980,6 @@ img {
     position: static;
     height: auto;
     aspect-ratio: auto;
-    background: #fff !important;
-  }
-
-  .detail-hero .scrim {
-    display: none !important;
   }
 
   .detail-hero img {
@@ -2991,28 +2992,7 @@ img {
 
   .detail-hero .heading {
     position: static !important;
-    background: none !important;
     padding: 10px 0 0 !important;
-    color: #000 !important;
-  }
-
-  .detail-hero h1 {
-    color: #000 !important;
-  }
-
-  html, body, .app, .view, .detail-body, .nutrition-panel {
-    background: #fff !important;
-  }
-
-  .ing-amt, .step-hl-amt, .step-hl-temp, .step-hl-time,
-  .detail-meta-cat, .detail-meta-cuisine, .tag-chip-view,
-  .nutrition-item, .extra-photos-gallery img {
-    background: #fff !important;
-    border: 1px solid #ccc !important;
-  }
-
-  .step-hl-ing {
-    color: #000 !important;
   }
 }
 
