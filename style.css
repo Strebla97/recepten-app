@@ -2900,49 +2900,67 @@ img {
 }
 
 /* ---------- PDF export (print) ---------- */
-
-#pdfExportArea {
-  display: none;
-}
+/* Prints the recipe detail page as-is, but with white backgrounds
+   everywhere instead of the app's colored fills, to save ink. */
 
 @media print {
-  body > *:not(#pdfExportArea) {
+  .tabbar, .dropdown-backdrop, #recipeMoreMenu, #plannerQuickMenu,
+  #plannerPickOverlay, #infoOverlay, #photoLightbox, #toast,
+  .add-recipe-menu, #confirmOverlay {
     display: none !important;
   }
 
-  #pdfExportArea {
-    display: block !important;
-    font-family: 'Work Sans', sans-serif;
-    color: #000;
-    max-width: 680px;
-    margin: 0 auto;
+  .view:not(#view-detail) {
+    display: none !important;
   }
 
-  #pdfExportArea h1 {
-    font-family: 'Fraunces', serif;
-    font-size: 26px;
-    margin: 0 0 6px;
+  #view-detail .topnav, #view-detail .hero-more-btn,
+  #view-detail .cook-mode-inline, #view-detail .nutrition-toggle {
+    display: none !important;
   }
 
-  #pdfExportArea .pdf-meta {
-    color: #555;
-    font-size: 13px;
-    margin: 0 0 14px;
+  .detail-hero {
+    position: static;
+    height: auto;
+    aspect-ratio: auto;
+    background: #fff !important;
   }
 
-  #pdfExportArea h2 {
-    font-size: 17px;
-    margin: 22px 0 8px;
+  .detail-hero .scrim {
+    display: none !important;
   }
 
-  #pdfExportArea ul, #pdfExportArea ol {
-    margin: 0;
-    padding-left: 22px;
+  .detail-hero img {
+    position: static;
+    width: 100%;
+    height: auto;
+    max-height: 320px;
+    object-fit: contain;
   }
 
-  #pdfExportArea li {
-    margin-bottom: 6px;
-    line-height: 1.5;
-    font-size: 14px;
+  .detail-hero .heading {
+    position: static !important;
+    background: none !important;
+    padding: 10px 0 0 !important;
+    color: #000 !important;
+  }
+
+  .detail-hero h1 {
+    color: #000 !important;
+  }
+
+  html, body, .app, .view, .detail-body, .nutrition-panel {
+    background: #fff !important;
+  }
+
+  .ing-amt, .step-hl-amt, .step-hl-temp, .step-hl-time,
+  .detail-meta-cat, .detail-meta-cuisine, .tag-chip-view,
+  .nutrition-item, .extra-photos-gallery img {
+    background: #fff !important;
+    border: 1px solid #ccc !important;
+  }
+
+  .step-hl-ing {
+    color: #000 !important;
   }
 }
