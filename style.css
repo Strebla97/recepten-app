@@ -1341,6 +1341,20 @@ img {
   line-height: 1.5;
 }
 
+.step-hl-amt, .step-hl-temp, .step-hl-time {
+  font-weight: 700;
+  color: var(--green);
+  background: var(--green-soft);
+  padding: 1px 5px;
+  border-radius: 5px;
+  white-space: nowrap;
+}
+
+.step-hl-ing {
+  font-weight: 700;
+  color: var(--ink);
+}
+
 .steps-list li::before {
   content: counter(step);
   flex: none;

@@ -1603,6 +1603,38 @@ document.getElementById('searchInput').addEventListener('input', (e) => {
 
 /* ---------------- Detail ---------------- */
 
+function escapeRegex(str) { return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+
+function escapeHtml(str) {
+  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+// Highlights amounts/units, temperatures, cooking times, and ingredient
+// names within a preparation step, so they visually pop out of the running
+// text while cooking.
+function highlightStepText(text, ingredients) {
+  const escaped = escapeHtml(text || '');
+  const names = (ingredients || [])
+    .map(i => i.name)
+    .filter(Boolean)
+    .sort((a, b) => b.length - a.length)
+    .map(escapeRegex);
+  const parts = [];
+  if (names.length) parts.push(`(?<ing>${names.join('|')})`);
+  parts.push(`(?<temp>\\d+(?:[.,]\\d+)?\\s?(?:°\\s?C|graden))`);
+  parts.push(`(?<time>\\d+(?:[.,]\\d+)?\\s?(?:minuten|minuutjes|minuut|min\\.?|uren|uur))`);
+  parts.push(`(?<amt>\\d+(?:[.,]\\d+)?(?:\\/\\d+)?\\s?(?:g|gram|kg|ml|l|liter|el|eetlepels?|tl|theelepels?|stuks?|teentjes?|teentje|snufjes?|blikjes?|blik|plakjes?|takjes?|kopjes?|kop|personen)\\b)`);
+  const re = new RegExp(parts.join('|'), 'giu');
+  return escaped.replace(re, (match, ...args) => {
+    const groups = args[args.length - 1];
+    let cls = 'step-hl-amt';
+    if (groups && groups.temp) cls = 'step-hl-temp';
+    else if (groups && groups.time) cls = 'step-hl-time';
+    else if (groups && groups.ing) cls = 'step-hl-ing';
+    return `<span class="${cls}">${match}</span>`;
+  });
+}
+
 function openDetail(id) {
   currentRecipeId = id;
   const r = recipes.find(x => x.id === id);
@@ -1641,7 +1673,7 @@ function renderDetail() {
   stepsList.innerHTML = '';
   (r.steps || []).forEach(s => {
     const li = document.createElement('li');
-    li.textContent = s;
+    li.innerHTML = highlightStepText(s, r.ingredients);
     stepsList.appendChild(li);
   });
   const extraGallery = document.getElementById('detailExtraPhotos');
