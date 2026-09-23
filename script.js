@@ -1004,6 +1004,7 @@ function sortRecipeList(list) {
     case 'name-asc': return arr.sort((a, b) => a.name.localeCompare(b.name));
     case 'name-desc': return arr.sort((a, b) => b.name.localeCompare(a.name));
     case 'time-asc': return arr.sort((a, b) => (a.time || 0) - (b.time || 0));
+    case 'time-desc': return arr.sort((a, b) => (b.time || 0) - (a.time || 0));
     case 'difficulty-asc': return arr.sort((a, b) => {
       const da = DIFFICULTY_RANK[a.difficulty], db = DIFFICULTY_RANK[b.difficulty];
       if (da === undefined && db === undefined) return 0;
@@ -1011,15 +1012,49 @@ function sortRecipeList(list) {
       if (db === undefined) return -1;
       return da - db;
     });
+    case 'difficulty-desc': return arr.sort((a, b) => {
+      const da = DIFFICULTY_RANK[a.difficulty], db = DIFFICULTY_RANK[b.difficulty];
+      if (da === undefined && db === undefined) return 0;
+      if (da === undefined) return 1;
+      if (db === undefined) return -1;
+      return db - da;
+    });
     case 'newest':
     default: return arr.reverse();
   }
 }
 
+const SORT_GROUP_DEFAULT = { name: 'name-asc', date: 'newest', time: 'time-asc', difficulty: 'difficulty-asc' };
+const SORT_GROUP_ALT = { name: 'name-desc', date: 'oldest', time: 'time-desc', difficulty: 'difficulty-desc' };
+const SORT_GROUP_LABELS = {
+  name: { asc: 'A-Z', desc: 'Z-A' },
+  date: { asc: 'Nieuwste', desc: 'Oudste' },
+  time: { asc: 'Kortste', desc: 'Langste' }
+};
+
+// Each sort row remembers its own direction: clicking it activates that
+// field (defaulting to its normal direction), or flips direction if it's
+// already the active field — like clicking a sortable table header twice.
+function toggleSortDirection(group) {
+  const def = SORT_GROUP_DEFAULT[group], alt = SORT_GROUP_ALT[group];
+  setSortMode(sortMode === def ? alt : def);
+}
+
 function renderFilterMenu() {
-  document.querySelectorAll('#filterMenu [data-sort]').forEach(b => {
-    b.classList.toggle('active', b.dataset.sort === sortMode);
+  ['name', 'date', 'time'].forEach(group => {
+    const def = SORT_GROUP_DEFAULT[group], alt = SORT_GROUP_ALT[group];
+    const row = document.querySelector(`[data-sort-group="${group}"]`);
+    if (row) row.classList.toggle('active', sortMode === def || sortMode === alt);
+    const label = document.getElementById('sortDirLabel-' + group);
+    if (label) label.textContent = sortMode === alt ? SORT_GROUP_LABELS[group].desc : SORT_GROUP_LABELS[group].asc;
   });
+  const diffRow = document.querySelector('[data-sort-group="difficulty"]');
+  if (diffRow) diffRow.classList.toggle('active', sortMode === 'difficulty-asc' || sortMode === 'difficulty-desc');
+  const diffArrow = document.getElementById('sortDirArrow-difficulty');
+  if (diffArrow) {
+    diffArrow.classList.toggle('flipped', sortMode === 'difficulty-desc');
+    diffArrow.title = sortMode === 'difficulty-desc' ? 'Moeilijkste eerst' : 'Makkelijkst eerst';
+  }
   const wrap = document.getElementById('filterLabelChips');
   const tags = allUsedTags();
   const existing = [...wrap.querySelectorAll('.filter-chip')].map(b => b.dataset.tag);

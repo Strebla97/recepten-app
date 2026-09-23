@@ -395,6 +395,34 @@ img {
   transform: rotate(45deg) translateY(-1px);
 }
 
+.sort-toggle-row.active::after {
+  content: none;
+}
+
+.sort-dir-label,
+.sort-dir-arrow {
+  margin-left: auto;
+  flex: none;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-soft);
+}
+
+.sort-toggle-row.active .sort-dir-label,
+.sort-toggle-row.active .sort-dir-arrow {
+  color: var(--green);
+}
+
+.sort-dir-arrow {
+  display: flex;
+  align-items: center;
+  transition: transform 0.15s ease;
+}
+
+.sort-dir-arrow.flipped {
+  transform: rotate(180deg);
+}
+
 .dropdown-section-label {
   font-size: 11px;
   font-weight: 700;

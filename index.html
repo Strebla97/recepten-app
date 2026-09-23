@@ -68,12 +68,24 @@
             </button>
             <div class="dropdown-menu dropdown-menu-wide" id="filterMenu">
               <div class="dropdown-section-label">Sorteren</div>
-              <button class="dropdown-item" data-sort="newest" onclick="setSortMode('newest')">Nieuwste eerst</button>
-              <button class="dropdown-item" data-sort="oldest" onclick="setSortMode('oldest')">Oudste eerst</button>
-              <button class="dropdown-item" data-sort="name-asc" onclick="setSortMode('name-asc')">Naam (A-Z)</button>
-              <button class="dropdown-item" data-sort="name-desc" onclick="setSortMode('name-desc')">Naam (Z-A)</button>
-              <button class="dropdown-item" data-sort="time-asc" onclick="setSortMode('time-asc')">Bereidingstijd (kort-lang)</button>
-              <button class="dropdown-item" data-sort="difficulty-asc" onclick="setSortMode('difficulty-asc')">Moeilijkheidsgraad</button>
+              <button class="dropdown-item sort-toggle-row" data-sort-group="name" onclick="toggleSortDirection('name')">
+                <span>Naam</span>
+                <span class="sort-dir-label" id="sortDirLabel-name">A-Z</span>
+              </button>
+              <button class="dropdown-item sort-toggle-row" data-sort-group="date" onclick="toggleSortDirection('date')">
+                <span>Datum toegevoegd</span>
+                <span class="sort-dir-label" id="sortDirLabel-date">Nieuwste</span>
+              </button>
+              <button class="dropdown-item sort-toggle-row" data-sort-group="time" onclick="toggleSortDirection('time')">
+                <span>Bereidingstijd</span>
+                <span class="sort-dir-label" id="sortDirLabel-time">Kortste</span>
+              </button>
+              <button class="dropdown-item sort-toggle-row" data-sort-group="difficulty" onclick="toggleSortDirection('difficulty')">
+                <span>Moeilijkheidsgraad</span>
+                <span class="sort-dir-arrow" id="sortDirArrow-difficulty" title="Makkelijkst eerst">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M19 12l-7 7-7-7"/></svg>
+                </span>
+              </button>
               <div class="dropdown-divider"></div>
               <div class="dropdown-section-label">Labels</div>
               <div class="filter-label-chips" id="filterLabelChips"></div>
