@@ -802,7 +802,8 @@ img {
 }
 
 .recipe-card .name-wrap {
-  flex: 1;
+  flex: none;
+  min-height: 42px;
   display: flex;
   align-items: center;
   margin-top: 8px;
