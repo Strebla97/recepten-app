@@ -198,6 +198,7 @@ function getSettingsSnapshot() {
     weekStart: weekStart,
     viewMode: viewMode,
     sortMode: sortMode,
+    sortDirections: sortDirections,
     shopCategoryOrder: shopCategoryOrder,
     shopStores: shopStores,
     activeShopStoreId: activeShopStoreId,
@@ -232,6 +233,10 @@ function applyCloudSettings(data) {
   if (typeof data.sortMode === 'string') {
     sortMode = data.sortMode;
     safeSet('rb_sortmode', sortMode);
+  }
+  if (data.sortDirections && typeof data.sortDirections === 'object') {
+    sortDirections = data.sortDirections;
+    safeSet('rb_sortdirections', sortDirections);
   }
   if (Array.isArray(data.shopCategoryOrder) && data.shopCategoryOrder.length) {
     shopCategoryOrder.length = 0;
@@ -934,6 +939,10 @@ let activeCategory = 'Alles';
 let searchTerm = '';
 let viewMode = safeGet('rb_viewmode', 'grid');
 let sortMode = safeGet('rb_sortmode', 'newest');
+// Remembers each sort field's own last-used direction independently, so
+// switching the active field (e.g. to Bereidingstijd) doesn't reset the
+// direction you'd already picked for another field (e.g. Datum toegevoegd).
+let sortDirections = safeGet('rb_sortdirections', {});
 let activeLabelFilters = new Set();
 
 function setViewMode(mode) {
@@ -1039,28 +1048,35 @@ const SORT_GROUP_LABELS = {
   time: { asc: 'Kortste', desc: 'Langste' }
 };
 
-// Each sort row remembers its own direction: clicking it activates that
-// field (defaulting to its normal direction), or flips direction if it's
-// already the active field — like clicking a sortable table header twice.
+// Each sort row remembers its own direction independently (in sortDirections),
+// so switching to a different field doesn't reset the direction you'd
+// already picked for this one. Clicking a row flips *that field's* last
+// direction and makes it the active sort — like a sortable table header.
 function toggleSortDirection(group) {
   const def = SORT_GROUP_DEFAULT[group], alt = SORT_GROUP_ALT[group];
-  setSortMode(sortMode === def ? alt : def);
+  const current = sortDirections[group] || def;
+  const next = current === def ? alt : def;
+  sortDirections[group] = next;
+  safeSet('rb_sortdirections', sortDirections);
+  setSortMode(next);
 }
 
 function renderFilterMenu() {
   ['name', 'date', 'time'].forEach(group => {
     const def = SORT_GROUP_DEFAULT[group], alt = SORT_GROUP_ALT[group];
+    const dir = sortDirections[group] || def;
     const row = document.querySelector(`[data-sort-group="${group}"]`);
     if (row) row.classList.toggle('active', sortMode === def || sortMode === alt);
     const label = document.getElementById('sortDirLabel-' + group);
-    if (label) label.textContent = sortMode === alt ? SORT_GROUP_LABELS[group].desc : SORT_GROUP_LABELS[group].asc;
+    if (label) label.textContent = dir === alt ? SORT_GROUP_LABELS[group].desc : SORT_GROUP_LABELS[group].asc;
   });
+  const diffDir = sortDirections.difficulty || 'difficulty-asc';
   const diffRow = document.querySelector('[data-sort-group="difficulty"]');
   if (diffRow) diffRow.classList.toggle('active', sortMode === 'difficulty-asc' || sortMode === 'difficulty-desc');
   const diffArrow = document.getElementById('sortDirArrow-difficulty');
   if (diffArrow) {
-    diffArrow.classList.toggle('flipped', sortMode === 'difficulty-desc');
-    diffArrow.title = sortMode === 'difficulty-desc' ? 'Moeilijkste eerst' : 'Makkelijkst eerst';
+    diffArrow.classList.toggle('flipped', diffDir === 'difficulty-desc');
+    diffArrow.title = diffDir === 'difficulty-desc' ? 'Moeilijkste eerst' : 'Makkelijkst eerst';
   }
   const wrap = document.getElementById('filterLabelChips');
   const tags = allUsedTags();
