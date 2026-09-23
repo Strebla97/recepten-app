@@ -1146,7 +1146,7 @@ document.addEventListener('click', (e) => {
   if (!e.target.closest('.dropdown-wrap')) closeAllDropdowns();
   if (!e.target.closest('.planner-quick-menu') && !e.target.closest('.planner-btn') && !e.target.closest('.planner-fab')) closePlannerQuickMenu();
   if (!e.target.closest('.add-recipe-menu') && !e.target.closest('#addRecipeBtn')) closeAddRecipeMenu();
-  if (!e.target.closest('.recipe-more-menu') && !e.target.closest('.more-btn')) closeRecipeMoreMenu();
+  if (!e.target.closest('#recipeMoreMenu') && !e.target.closest('.more-btn') && !e.target.closest('.hero-more-btn')) closeRecipeMoreMenu();
 });
 
 function allUsedTags() {
@@ -1371,6 +1371,7 @@ function buildRecipeRow(r) {
 function openInfoPopup(id) {
   const r = recipes.find(x => x.id === id);
   if (!r) return;
+  closeRecipeMoreMenu();
   document.getElementById('infoName').textContent = r.name;
   const data = calcNutrition(r, 1);
   const nutritionEl = document.getElementById('infoNutrition');
