@@ -477,7 +477,7 @@ function switchView(name) {
   document.getElementById('tabHome').classList.toggle('active', name === 'home');
   document.getElementById('tabShop').classList.toggle('active', name === 'shop');
   document.getElementById('tabPlanner').classList.toggle('active', name === 'planner');
-  const noTabbar = ['form', 'settings', 'settings-categories', 'settings-units', 'settings-shopcategories', 'settings-shopstore', 'help', 'help-kooktechnieken'];
+  const noTabbar = ['form', 'settings', 'settings-categories', 'settings-units', 'settings-shopcategories', 'settings-shopstore', 'settings-privacy', 'help', 'help-kooktechnieken'];
   document.getElementById('tabbar').style.display = noTabbar.includes(name) ? 'none' : 'flex';
   updateUndoButton();
   window.scrollTo(0,0);
@@ -1245,10 +1245,10 @@ function sortRecipeList(list) {
 const SORT_GROUP_DEFAULT = { name: 'name-asc', date: 'newest', time: 'time-asc', difficulty: 'difficulty-asc', calories: 'calories-asc' };
 const SORT_GROUP_ALT = { name: 'name-desc', date: 'oldest', time: 'time-desc', difficulty: 'difficulty-desc', calories: 'calories-desc' };
 const SORT_GROUP_LABELS = {
-  name: { asc: 'A-Z', desc: 'Z-A' },
-  date: { asc: 'Nieuwste', desc: 'Oudste' },
-  time: { asc: 'Kortste', desc: 'Langste' },
-  calories: { asc: 'Minst', desc: 'Meest' }
+  name: { asc: 'a-z', desc: 'z-a' },
+  date: { asc: 'nieuwste', desc: 'oudste' },
+  time: { asc: 'kortste', desc: 'langste' },
+  calories: { asc: 'minst', desc: 'meest' }
 };
 
 // Each sort row remembers its own direction independently (in sortDirections).

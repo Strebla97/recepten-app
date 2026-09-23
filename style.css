@@ -1715,6 +1715,13 @@ img {
   text-align: left;
 }
 
+.settings-item-value {
+  flex: none;
+  font-weight: 500;
+  color: var(--ink-soft);
+  font-size: 14px;
+}
+
 .settings-item-chev {
   flex: none;
   color: var(--ink-soft);
