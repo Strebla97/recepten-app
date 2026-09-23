@@ -470,6 +470,7 @@ function switchView(name) {
   if (name !== 'detail' && cookingMode) disableCookingMode();
   if (name !== 'planner' && plannerSelectMode) togglePlannerSelectMode();
   if (name !== 'shop' && shopSelectMode) toggleShopSelectMode();
+  if (name !== 'home' && recipeSelectMode) toggleRecipeSelectMode();
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   document.getElementById('view-' + name).classList.add('active');
   currentView = name;
@@ -1109,6 +1110,15 @@ let sortMode = safeGet('rb_sortmode', 'newest');
 // direction you'd already picked for another field (e.g. Datum toegevoegd).
 let sortDirections = safeGet('rb_sortdirections', {});
 let activeLabelFilters = new Set();
+let recipeSelectMode = false;
+let recipeSelectedIds = new Set();
+
+function getVisibleRecipeList() {
+  return recipes.filter(r => {
+    const matchesCategory = activeCategory === 'Alles' || (activeCategory === FAVORITES_FILTER ? !!r.favorite : r.category === activeCategory);
+    return matchesCategory && matchesSearch(r, searchTerm) && matchesLabelFilters(r);
+  });
+}
 
 function setViewMode(mode) {
   viewMode = mode;
@@ -1327,8 +1337,28 @@ const moreBtnHtml = `<span class="more-btn" title="Meer opties">
   <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>
 </span>`;
 
+const selectCheckSvg = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>';
+
 function buildRecipeCard(r) {
   const card = document.createElement('button');
+  if (recipeSelectMode) {
+    const selected = recipeSelectedIds.has(r.id);
+    card.className = 'recipe-card recipe-card-selectable' + (selected ? ' selected' : '');
+    card.onclick = () => toggleRecipeSelected(r.id);
+    card.innerHTML = `
+      <div class="thumb">
+        ${r.photo ? `<img src="${r.photo}">` : `<div class="ph">${phSvg(30)}</div>`}
+        <span class="recipe-select-check${selected ? ' checked' : ''}">${selected ? selectCheckSvg : ''}</span>
+      </div>
+      <div class="body">
+        <div class="cat-row">
+          <span class="cat">${r.category || ''}</span>
+          <span class="card-meta-inline">${r.time ? r.time + ' min · ' : ''}${r.baseServings || 1} porties</span>
+        </div>
+        <div class="name-wrap"><div class="name serif">${r.name}</div></div>
+      </div>`;
+    return card;
+  }
   card.className = 'recipe-card';
   card.onclick = () => openDetail(r.id);
   card.innerHTML = `
@@ -1351,6 +1381,21 @@ function buildRecipeCard(r) {
 
 function buildRecipeRow(r) {
   const row = document.createElement('button');
+  if (recipeSelectMode) {
+    const selected = recipeSelectedIds.has(r.id);
+    row.className = 'recipe-row recipe-row-selectable' + (selected ? ' selected' : '');
+    row.onclick = () => toggleRecipeSelected(r.id);
+    row.innerHTML = `
+      <span class="recipe-select-check recipe-select-check-inline${selected ? ' checked' : ''}">${selected ? selectCheckSvg : ''}</span>
+      <div class="row-thumb">
+        ${r.photo ? `<img src="${r.photo}">` : `<div class="ph">${phSvg(22)}</div>`}
+      </div>
+      <div class="row-body">
+        <div class="row-name serif">${r.name}</div>
+        <div class="row-meta">${r.time ? r.time + ' min · ' : ''}${r.baseServings || 1} porties</div>
+      </div>`;
+    return row;
+  }
   row.className = 'recipe-row';
   row.onclick = () => openDetail(r.id);
   row.innerHTML = `
@@ -1392,6 +1437,101 @@ function closeInfoPopup() {
   document.getElementById('infoOverlay').classList.remove('show');
 }
 
+function toggleRecipeSelectMode() {
+  recipeSelectMode = !recipeSelectMode;
+  recipeSelectedIds.clear();
+  document.getElementById('recipeSelectToggleBtn').classList.toggle('active', recipeSelectMode);
+  document.getElementById('recipeSelectToolbar').classList.toggle('open', recipeSelectMode);
+  updateRecipeSelectUI();
+  renderHome();
+}
+
+function toggleRecipeSelected(id) {
+  if (recipeSelectedIds.has(id)) recipeSelectedIds.delete(id);
+  else recipeSelectedIds.add(id);
+  updateRecipeSelectUI();
+  renderHome();
+}
+
+function selectAllRecipes() {
+  const visibleIds = getVisibleRecipeList().map(r => r.id);
+  const allSelected = visibleIds.length > 0 && visibleIds.every(id => recipeSelectedIds.has(id));
+  if (allSelected) {
+    recipeSelectedIds.clear();
+  } else {
+    visibleIds.forEach(id => recipeSelectedIds.add(id));
+  }
+  updateRecipeSelectUI();
+  renderHome();
+}
+
+function updateRecipeSelectUI() {
+  const disabled = recipeSelectedIds.size === 0;
+  ['recipeDeleteSelectionBtn', 'recipePlanSelectionBtn', 'recipeShopSelectionBtn'].forEach(id => {
+    const btn = document.getElementById(id);
+    if (btn) btn.disabled = disabled;
+  });
+}
+
+async function deleteSelectedRecipes() {
+  if (recipeSelectedIds.size === 0) return;
+  const n = recipeSelectedIds.size;
+  const ok = await customConfirm(n === 1 ? '1 recept verwijderen?' : `${n} recepten verwijderen?`, 'Verwijderen');
+  if (!ok) return;
+  const removedIds = [...recipeSelectedIds];
+  recipes = recipes.filter(r => !recipeSelectedIds.has(r.id));
+  recipeSelectedIds.clear();
+  saveRecipes();
+  if (db) removedIds.forEach(id => db.collection('recipes').doc(id).delete().catch(() => {}));
+  if (recipes.length === 0) toggleRecipeSelectMode();
+  else { updateRecipeSelectUI(); renderHome(); }
+  showToast('Recepten verwijderd');
+}
+
+function openPlanSelectedRecipesMenu(btn) {
+  if (recipeSelectedIds.size === 0) return;
+  const menu = document.getElementById('plannerQuickMenu');
+  const list = document.getElementById('plannerQuickDays');
+  const today = new Date();
+  const items = [];
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(today.getFullYear(), today.getMonth(), today.getDate() + i);
+    const key = dateKey(d);
+    const label = i === 0 ? 'Vandaag' : i === 1 ? 'Morgen' : DAY_NAMES[d.getDay()];
+    const sub = `${d.getDate()} ${MONTH_NAMES[d.getMonth()]}`;
+    items.push(`<button class="planner-quick-day" onclick="event.stopPropagation(); addSelectedRecipesToDay('${key}')">
+      <span class="planner-quick-day-label">${label}</span>
+      <span class="planner-quick-day-sub">${sub}</span>
+    </button>`);
+  }
+  list.innerHTML = items.join('');
+  positionFloatingMenu(menu, btn, 200);
+  menu.classList.add('open');
+}
+
+function addSelectedRecipesToDay(key) {
+  recipeSelectedIds.forEach(id => addPlannerRecipe(key, id));
+  closePlannerQuickMenu();
+  toggleRecipeSelectMode();
+  showToast('Toegevoegd aan planner');
+}
+
+function addSelectedRecipesToShopping() {
+  if (recipeSelectedIds.size === 0) return;
+  pushUndo('boodschappen toegevoegd', 'shopping', cloneShopping());
+  const touched = [];
+  recipeSelectedIds.forEach(id => {
+    const r = recipes.find(x => x.id === id);
+    if (!r) return;
+    touched.push(...mergeRecipeIntoShopping(r, 1));
+  });
+  saveShopping();
+  updateShopBadge();
+  toggleRecipeSelectMode();
+  showToast('Toegevoegd aan boodschappenlijst');
+  if (db) touched.forEach(item => { const { id, ...data } = item; db.collection('shopping').doc(id).set(data).catch(() => {}); });
+}
+
 function renderHome() {
   ensureCategoryOrder();
   renderChips();
@@ -1399,10 +1539,7 @@ function renderHome() {
   renderFilterMenu();
   const grid = document.getElementById('recipeGrid');
   const empty = document.getElementById('emptyState');
-  let list = recipes.filter(r => {
-    const matchesCategory = activeCategory === 'Alles' || (activeCategory === FAVORITES_FILTER ? !!r.favorite : r.category === activeCategory);
-    return matchesCategory && matchesSearch(r, searchTerm) && matchesLabelFilters(r);
-  });
+  let list = getVisibleRecipeList();
   grid.innerHTML = '';
   grid.className = viewMode === 'list' ? 'recipe-list' : 'recipe-grid';
   if (recipes.length === 0) {

@@ -632,6 +632,46 @@ img {
   box-shadow: 0 2px 6px rgba(0,0,0,0.25);
 }
 
+.recipe-select-check {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--paper);
+  border: 1.5px solid var(--card-border);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.recipe-card .thumb .recipe-select-check {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+}
+
+.recipe-select-check.checked {
+  background: var(--green);
+  border-color: var(--green);
+}
+
+.recipe-card-selectable.selected {
+  box-shadow: 0 0 0 2px var(--green) inset;
+}
+
+.recipe-row-selectable {
+  gap: 10px;
+}
+
+.recipe-row-selectable.selected {
+  background: var(--green-soft);
+}
+
+.recipe-select-check-inline {
+  flex: none;
+}
+
 .recipe-card .thumb {
   width: 100%;
   aspect-ratio: 4/3;
