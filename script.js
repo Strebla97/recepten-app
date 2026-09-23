@@ -665,6 +665,8 @@ let weekStart = parseInt(safeGet('rb_weekstart', '1'), 10);
 let plannerData = safeGet('rb_planner', {});
 let plannerAnchorDate = new Date();
 let plannerPickDateKey = null;
+let plannerSelectMode = false;
+let plannerSelectedKeys = new Set();
 
 const DAY_NAMES = ['Zondag', 'Maandag', 'Dinsdag', 'Woensdag', 'Donderdag', 'Vrijdag', 'Zaterdag'];
 const MONTH_NAMES = ['jan', 'feb', 'mrt', 'apr', 'mei', 'jun', 'jul', 'aug', 'sep', 'okt', 'nov', 'dec'];
@@ -720,32 +722,34 @@ function renderPlanner() {
     const ids = plannerData[key] || [];
     const card = document.createElement('div');
     card.className = 'planner-day' + (key === today ? ' is-today' : '') + (ids.length ? ' has-recipes' : '');
-    const compactAddBtn = `<button class="planner-add-btn-compact" onclick="event.stopPropagation(); openPlannerPick('${key}')" title="Recept toevoegen">
+    const compactAddBtn = plannerSelectMode ? '' : `<button class="planner-add-btn-compact" onclick="event.stopPropagation(); openPlannerPick('${key}')" title="Recept toevoegen">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
     </button>`;
     const recipeRows = ids.map(item => {
-      if (item && typeof item === 'object' && item.custom) {
-        return `<div class="planner-recipe planner-recipe-custom">
-          <div class="planner-recipe-thumb">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 01-8 0"/></svg>
-          </div>
-          <span class="planner-recipe-name">${item.title}</span>
-          <button class="planner-recipe-remove" onclick="event.stopPropagation(); removePlannerRecipe('${key}','${item.id}')">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
-          </button>
-        </div>`;
-      }
-      const r = recipes.find(x => x.id === item);
-      if (!r) return '';
-      return `<div class="planner-recipe" onclick="openDetail('${r.id}')">
-        <div class="planner-recipe-thumb">${r.photo ? `<img src="${r.photo}">` : phSvg(16)}</div>
-        <span class="planner-recipe-name">${r.name}</span>
-        <button class="planner-recipe-cart" onclick="event.stopPropagation(); addPlannerRecipeToShopping('${r.id}')" title="Toevoegen aan boodschappenlijst">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg>
-        </button>
-        <button class="planner-recipe-remove" onclick="event.stopPropagation(); removePlannerRecipe('${key}','${r.id}')">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
-        </button>
+      const isCustom = item && typeof item === 'object' && item.custom;
+      if (!isCustom && !recipes.find(x => x.id === item)) return '';
+      const r = isCustom ? null : recipes.find(x => x.id === item);
+      const itemId = isCustom ? item.id : r.id;
+      const name = isCustom ? item.title : r.name;
+      const selected = plannerSelectedKeys.has(key + '::' + itemId);
+      const thumb = isCustom
+        ? `<div class="planner-recipe-thumb"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 01-8 0"/></svg></div>`
+        : `<div class="planner-recipe-thumb">${r.photo ? `<img src="${r.photo}">` : phSvg(16)}</div>`;
+      const checkHtml = plannerSelectMode
+        ? `<span class="planner-select-check">${selected ? '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>' : ''}</span>`
+        : '';
+      const cartBtn = (!plannerSelectMode && !isCustom)
+        ? `<button class="planner-recipe-cart" onclick="event.stopPropagation(); addPlannerRecipeToShopping('${r.id}')" title="Toevoegen aan boodschappenlijst">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg>
+          </button>`
+        : '';
+      const rowClass = 'planner-recipe' + (isCustom ? ' planner-recipe-custom' : '') + (plannerSelectMode ? ' planner-recipe-selectable' : '') + (selected ? ' selected' : '');
+      const onclick = plannerSelectMode ? `togglePlannerItemSelected('${key}','${itemId}')` : (isCustom ? '' : `openDetail('${itemId}')`);
+      return `<div class="${rowClass}"${onclick ? ` onclick="${onclick}"` : ''}>
+        ${checkHtml}
+        ${thumb}
+        <span class="planner-recipe-name">${name}</span>
+        ${cartBtn}
       </div>`;
     }).join('');
     card.innerHTML = `
@@ -814,6 +818,88 @@ function removePlannerRecipe(key, id) {
   if (plannerData[key].length === 0) delete plannerData[key];
   savePlanner();
   renderPlanner();
+}
+
+// Selecting a day's items no longer happens via a per-row "x" — instead a
+// select mode lets you pick several items across the week at once and
+// either remove them or duplicate them onto a day next week.
+function togglePlannerSelectMode() {
+  plannerSelectMode = !plannerSelectMode;
+  plannerSelectedKeys.clear();
+  document.getElementById('plannerNormalHeader').style.display = plannerSelectMode ? 'none' : 'flex';
+  document.getElementById('plannerSelectBar').style.display = plannerSelectMode ? 'flex' : 'none';
+  updatePlannerSelectUI();
+  renderPlanner();
+}
+
+function togglePlannerItemSelected(dayKey, itemId) {
+  const key = dayKey + '::' + itemId;
+  if (plannerSelectedKeys.has(key)) plannerSelectedKeys.delete(key);
+  else plannerSelectedKeys.add(key);
+  updatePlannerSelectUI();
+  renderPlanner();
+}
+
+function updatePlannerSelectUI() {
+  const n = plannerSelectedKeys.size;
+  const countEl = document.getElementById('plannerSelectCount');
+  if (countEl) countEl.textContent = n > 0 ? `${n} geselecteerd` : 'Selecteer recepten';
+  const actions = document.getElementById('plannerSelectActions');
+  if (actions) actions.style.display = n > 0 ? 'flex' : 'none';
+}
+
+async function clearCurrentPlannerWeek() {
+  const days = getWeekDates(plannerAnchorDate, weekStart);
+  const ok = await customConfirm('Alle recepten uit deze week verwijderen?', 'Verwijderen');
+  if (!ok) return;
+  days.forEach(d => { delete plannerData[dateKey(d)]; });
+  savePlanner();
+  plannerSelectedKeys.clear();
+  updatePlannerSelectUI();
+  renderPlanner();
+  showToast('Week leeggemaakt');
+}
+
+function deleteSelectedPlannerItems() {
+  plannerSelectedKeys.forEach(compositeKey => {
+    const sep = compositeKey.indexOf('::');
+    removePlannerRecipe(compositeKey.slice(0, sep), compositeKey.slice(sep + 2));
+  });
+  plannerSelectedKeys.clear();
+  updatePlannerSelectUI();
+  renderPlanner();
+  showToast('Verwijderd uit planner');
+}
+
+function openReplanSelectedMenu(btn) {
+  if (plannerSelectedKeys.size === 0) return;
+  const menu = document.getElementById('plannerQuickMenu');
+  const list = document.getElementById('plannerQuickDays');
+  const nextWeekDays = getWeekDates(plannerAnchorDate, weekStart).map(d => new Date(d.getFullYear(), d.getMonth(), d.getDate() + 7));
+  list.innerHTML = nextWeekDays.map(d => {
+    const key = dateKey(d);
+    return `<button class="planner-quick-day" onclick="event.stopPropagation(); replanSelectedTo('${key}')">
+      <span class="planner-quick-day-label">${DAY_NAMES[d.getDay()]}</span>
+      <span class="planner-quick-day-sub">${d.getDate()} ${MONTH_NAMES[d.getMonth()]}</span>
+    </button>`;
+  }).join('');
+  positionFloatingMenu(menu, btn, 200);
+  menu.classList.add('open');
+}
+
+function replanSelectedTo(targetKey) {
+  plannerSelectedKeys.forEach(compositeKey => {
+    const sep = compositeKey.indexOf('::');
+    const dayKey = compositeKey.slice(0, sep);
+    const itemId = compositeKey.slice(sep + 2);
+    const item = (plannerData[dayKey] || []).find(x => (typeof x === 'string' ? x === itemId : x.id === itemId));
+    if (!item) return;
+    if (typeof item === 'string') addPlannerRecipe(targetKey, item);
+    else addPlannerCustomItem(targetKey, item.title);
+  });
+  closePlannerQuickMenu();
+  togglePlannerSelectMode();
+  showToast('Opnieuw ingepland voor volgende week');
 }
 
 // A planner entry is either a recipe id (string) or a free-text item the
