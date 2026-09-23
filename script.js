@@ -826,8 +826,8 @@ function removePlannerRecipe(key, id) {
 function togglePlannerSelectMode() {
   plannerSelectMode = !plannerSelectMode;
   plannerSelectedKeys.clear();
-  document.getElementById('plannerNormalHeader').style.display = plannerSelectMode ? 'none' : 'flex';
-  document.getElementById('plannerSelectBar').style.display = plannerSelectMode ? 'flex' : 'none';
+  document.getElementById('plannerSelectToggleBtn').classList.toggle('active', plannerSelectMode);
+  document.getElementById('plannerSelectToolbar').classList.toggle('open', plannerSelectMode);
   updatePlannerSelectUI();
   renderPlanner();
 }
@@ -840,12 +840,26 @@ function togglePlannerItemSelected(dayKey, itemId) {
   renderPlanner();
 }
 
+function selectAllPlannerItems() {
+  const days = getWeekDates(plannerAnchorDate, weekStart);
+  days.forEach(d => {
+    const key = dateKey(d);
+    (plannerData[key] || []).forEach(item => {
+      const itemId = typeof item === 'string' ? item : item.id;
+      plannerSelectedKeys.add(key + '::' + itemId);
+    });
+  });
+  updatePlannerSelectUI();
+  renderPlanner();
+}
+
 function updatePlannerSelectUI() {
   const n = plannerSelectedKeys.size;
-  const countEl = document.getElementById('plannerSelectCount');
-  if (countEl) countEl.textContent = n > 0 ? `${n} geselecteerd` : 'Selecteer recepten';
-  const actions = document.getElementById('plannerSelectActions');
-  if (actions) actions.style.display = n > 0 ? 'flex' : 'none';
+  const disabled = n === 0;
+  const deleteBtn = document.getElementById('plannerDeleteSelectionBtn');
+  const replanBtn = document.getElementById('plannerReplanBtn');
+  if (deleteBtn) deleteBtn.disabled = disabled;
+  if (replanBtn) replanBtn.disabled = disabled;
 }
 
 async function clearCurrentPlannerWeek() {
@@ -859,6 +873,16 @@ async function clearCurrentPlannerWeek() {
   if (plannerSelectMode) togglePlannerSelectMode();
   else renderPlanner();
   showToast('Week leeggemaakt');
+}
+
+async function deleteAllPlannerData() {
+  const ok = await customConfirm('De hele planner leegmaken? Dit verwijdert alles, van alle weken.', 'Verwijderen');
+  if (!ok) return;
+  plannerData = {};
+  savePlanner();
+  if (plannerSelectMode) togglePlannerSelectMode();
+  else renderPlanner();
+  showToast('Planner volledig leeggemaakt');
 }
 
 function deleteSelectedPlannerItems() {

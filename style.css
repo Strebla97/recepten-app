@@ -155,6 +155,16 @@ img {
   background: var(--card-border);
 }
 
+.icon-btn.active {
+  background: var(--green);
+  color: #fff;
+}
+
+.icon-btn:disabled {
+  opacity: 0.35;
+  pointer-events: none;
+}
+
 
 .search-wrap {
   margin-top: 12px;
@@ -2195,30 +2205,23 @@ img {
   padding: 4px;
 }
 
-.planner-select-bar {
-  justify-content: space-between;
+.planner-select-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(-6px);
+  transition: max-height 0.2s ease, opacity 0.15s ease, transform 0.2s ease, padding 0.2s ease;
 }
 
-.text-btn {
-  flex: none;
-  background: none;
-  border: none;
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--green);
-  padding: 6px 4px;
-}
-
-.planner-select-count {
-  font-size: 14.5px;
-  font-weight: 600;
-  color: var(--ink);
-}
-
-.planner-select-actions {
-  display: none;
-  gap: 10px;
-  padding: 10px 0 4px;
+.planner-select-toolbar.open {
+  max-height: 60px;
+  opacity: 1;
+  transform: translateY(0);
+  padding-top: 10px;
 }
 
 .planner-week-shop-btn {
