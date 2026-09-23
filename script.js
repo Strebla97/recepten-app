@@ -1739,9 +1739,13 @@ function parseRecipeText(text) {
 
   const steps = [];
   if (stepStart !== -1) {
+    // Recipe text often has trailing meta lines (time/servings) after the
+    // numbered steps, e.g. "Bereidingstijd: 20 minuten" or "Voor 4 personen"
+    // — these aren't cooking steps and would otherwise get appended as one.
+    const metaOnlyLine = /^(bereidings|berei|kook|voorbereidings)?tijd\s*[:\-]?\s*\d+|^(voor\s+)?\d+\s*(personen|porties)\.?$|^(moeilijkheid|categorie)\s*[:\-]/i;
     for (let i = stepStart + 1; i < rawLines.length; i++) {
       let l = rawLines[i];
-      if (!l) continue;
+      if (!l || metaOnlyLine.test(l)) continue;
       l = l.replace(/^(stap\s*)?\d+[.)]\s*/i, '').replace(/^[-•*▪‣◦]\s*/, '').trim();
       if (l) steps.push(l);
     }
