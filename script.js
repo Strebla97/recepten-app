@@ -1646,7 +1646,7 @@ function highlightStepText(text, ingredients) {
     .sort((a, b) => b.length - a.length)
     .map(escapeRegex);
   const parts = [];
-  if (names.length) parts.push(`(?<ing>${names.join('|')})`);
+  if (names.length) parts.push(`(?<![\\p{L}\\p{N}])(?<ing>${names.join('|')})(?![\\p{L}\\p{N}])`);
   parts.push(`(?<temp>\\d+(?:[.,]\\d+)?\\s?(?:°\\s?C|graden))`);
   parts.push(`(?<time>\\d+(?:[.,]\\d+)?\\s?(?:minuten|minuutjes|minuut|min\\.?|uren|uur))`);
   parts.push(`(?<amt>\\d+(?:[.,]\\d+)?(?:\\/\\d+)?\\s?(?:g|gram|kg|ml|l|liter|el|eetlepels?|tl|theelepels?|stuks?|teentjes?|teentje|snufjes?|blikjes?|blik|plakjes?|takjes?|kopjes?|kop|personen)\\b)`);
