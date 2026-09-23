@@ -956,11 +956,18 @@ function toggleDropdown(id) {
   const menu = document.getElementById(id);
   const isOpen = menu.classList.contains('open');
   closeAllDropdowns();
-  if (!isOpen) menu.classList.add('open');
+  if (!isOpen) {
+    menu.classList.add('open');
+    document.getElementById('dropdownBackdrop').classList.add('show');
+  }
 }
 
+// The backdrop sits between the page content and the open menu, so the
+// click that closes the menu lands on it instead of falling through to
+// whatever is underneath (e.g. a recipe card) — one tap just closes it.
 function closeAllDropdowns() {
   document.querySelectorAll('.dropdown-menu.open').forEach(m => m.classList.remove('open'));
+  document.getElementById('dropdownBackdrop').classList.remove('show');
 }
 
 document.addEventListener('click', (e) => {
