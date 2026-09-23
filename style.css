@@ -2961,6 +2961,14 @@ img {
   visibility: hidden;
 }
 
+.exporting-pdf #view-detail {
+  background: #fff;
+}
+
+.exporting-pdf #view-detail .detail-body {
+  background: #fff;
+}
+
 /* ---------- Hover tooltips ---------- */
 
 .custom-tooltip {

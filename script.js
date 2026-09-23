@@ -1081,8 +1081,16 @@ async function exportRecipeToPdf() {
   closeRecipeMoreMenu();
   if (currentRecipeId !== id) openDetail(id);
   const r = recipes.find(x => x.id === id);
-  await new Promise(resolve => setTimeout(resolve, 50));
+  // Force the light theme for the export regardless of the app's current
+  // theme, so text colors meant for a dark page don't end up unreadable
+  // against the PDF's forced white background.
+  const prevTheme = document.documentElement.getAttribute('data-theme');
+  document.documentElement.setAttribute('data-theme', 'light');
   document.body.classList.add('exporting-pdf');
+  // Wait for the theme/layout change to settle and for web fonts to finish
+  // loading — capturing before fonts swap in is what caused jumbled text.
+  await (document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve());
+  await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
   try {
     const target = document.getElementById('view-detail');
     const canvas = await html2canvas(target, { backgroundColor: '#ffffff', useCORS: true, scale: 2 });
@@ -1094,6 +1102,8 @@ async function exportRecipeToPdf() {
     showToast('Exporteren naar PDF is mislukt');
   } finally {
     document.body.classList.remove('exporting-pdf');
+    if (prevTheme) document.documentElement.setAttribute('data-theme', prevTheme);
+    else document.documentElement.removeAttribute('data-theme');
   }
 }
 
