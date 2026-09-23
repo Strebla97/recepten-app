@@ -854,9 +854,10 @@ async function clearCurrentPlannerWeek() {
   if (!ok) return;
   days.forEach(d => { delete plannerData[dateKey(d)]; });
   savePlanner();
-  plannerSelectedKeys.clear();
-  updatePlannerSelectUI();
-  renderPlanner();
+  // Nothing left to select, so drop straight back into normal mode —
+  // ready to start planning the week again right away.
+  if (plannerSelectMode) togglePlannerSelectMode();
+  else renderPlanner();
   showToast('Week leeggemaakt');
 }
 
