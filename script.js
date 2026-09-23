@@ -1241,7 +1241,8 @@ function renderDetail() {
     const li = document.createElement('li');
     const num = i.amount ? fmtNum(i.amount * factor) : '';
     const unit = i.unit || '';
-    li.innerHTML = `<span class="amt-num">${num}</span><span class="amt-unit">${unit}</span><span class="ing-name">${i.name}</span>`;
+    const hasAmt = num || unit;
+    li.innerHTML = `<span class="ing-amt${hasAmt ? '' : ' ing-amt-empty'}">${num ? `<span class="amt-num">${num}</span>` : ''}${unit ? `<span class="amt-unit">${unit}</span>` : ''}</span><span class="ing-name">${i.name}</span>`;
     ingList.appendChild(li);
   });
   const stepsList = document.getElementById('detailSteps');

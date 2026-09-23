@@ -1027,8 +1027,9 @@ img {
   padding: 0;
   margin: 0 0 26px;
   display: grid;
-  grid-template-columns: auto auto 1fr;
-  column-gap: 7px;
+  grid-template-columns: auto 1fr;
+  column-gap: 12px;
+  row-gap: 3px;
 }
 
 .ingredient-list li {
@@ -1036,32 +1037,38 @@ img {
   font-size: 15px;
 }
 
-.ingredient-list .amt-num,
-.ingredient-list .amt-unit,
-.ingredient-list .ing-name {
-  padding: 6px 0;
-  align-self: baseline;
+.ingredient-list .ing-amt {
+  justify-self: end;
+  align-self: center;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+  padding: 5px 10px;
+  border-radius: 8px;
+  background: var(--green-soft);
+  white-space: nowrap;
 }
 
-.ingredient-list .ing-name {
-  padding-left: 10px;
+.ingredient-list .ing-amt.ing-amt-empty {
+  background: none;
+  padding: 5px 0;
 }
 
 .ingredient-list .amt-num {
-  font-weight: 600;
+  font-weight: 700;
   color: var(--green);
-  text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
 .ingredient-list .amt-unit {
   font-weight: 600;
   color: var(--green);
-  text-align: left;
-  white-space: nowrap;
+  font-size: 13px;
 }
 
 .ingredient-list .ing-name {
+  align-self: center;
+  padding: 6px 0;
   color: var(--ink);
 }
 
