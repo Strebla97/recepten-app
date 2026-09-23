@@ -2795,14 +2795,17 @@ function toggleShopManualInput() {
 
 function submitShopManualItem() {
   const input = document.getElementById('shopManualInput');
+  const amountInput = document.getElementById('shopManualAmountInput');
   const name = input.value.trim();
   if (!name) { input.focus(); return; }
-  const item = { id: uid(), name, amount: null, unit: null, checked: false };
+  const amountText = amountInput.value.trim();
+  const item = { id: uid(), name, amount: null, unit: amountText || null, checked: false };
   shoppingList.push(item);
   saveShopping();
   updateShopBadge();
   renderShop();
   input.value = '';
+  amountInput.value = '';
   document.getElementById('shopManualRow').style.display = 'none';
   document.getElementById('shopManualToggle').style.display = 'block';
   if (db) { const { id, ...data } = item; db.collection('shopping').doc(id).set(data).catch(() => {}); }

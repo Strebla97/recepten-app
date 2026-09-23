@@ -2164,6 +2164,11 @@ img {
   padding: 10px 20px 0;
 }
 
+.shop-manual-row .shop-manual-amount {
+  flex: none;
+  width: 90px;
+}
+
 .shop-list {
   list-style: none;
   margin: 0;
