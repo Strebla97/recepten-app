@@ -1033,10 +1033,12 @@ let recipeMoreUseCurrentServings = false;
 // The "..." menu on a recipe card/row/detail page combines the
 // boodschappenlijst and planner shortcuts that used to be separate buttons.
 // From the detail page, adding to the shopping list should respect whatever
-// serving size is currently shown there rather than always the base amount.
-function openRecipeMoreMenu(recipeId, btn, useCurrentServings) {
+// serving size is currently shown there rather than always the base amount,
+// and it also gets a "Bewerken" option the card/row menu doesn't need.
+function openRecipeMoreMenu(recipeId, btn, useCurrentServings, showEdit) {
   recipeMoreId = recipeId;
   recipeMoreUseCurrentServings = !!useCurrentServings;
+  document.getElementById('recipeMoreEditBtn').style.display = showEdit ? 'flex' : 'none';
   const menu = document.getElementById('recipeMoreMenu');
   positionFloatingMenu(menu, btn, 200);
   menu.classList.add('open');
@@ -1051,6 +1053,12 @@ function recipeMoreAddToShopping() {
   if (recipeMoreUseCurrentServings && recipeMoreId === currentRecipeId) addToShoppingList();
   else addPlannerRecipeToShopping(recipeMoreId);
   closeRecipeMoreMenu();
+}
+
+function recipeMoreEdit() {
+  if (!recipeMoreId) return;
+  closeRecipeMoreMenu();
+  openForm(recipeMoreId);
 }
 
 function recipeMoreOpenPlanner() {
