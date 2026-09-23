@@ -923,6 +923,85 @@ img {
   flex: none;
   border-radius: 12px;
   object-fit: cover;
+  cursor: pointer;
+}
+
+.detail-hero img#detailImg {
+  cursor: pointer;
+}
+
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: rgba(10, 9, 6, 0.94);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.18s ease;
+}
+
+.lightbox.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.lightbox img {
+  max-width: 90vw;
+  max-height: 78vh;
+  object-fit: contain;
+  border-radius: 10px;
+  touch-action: pan-y;
+}
+
+.lightbox-close {
+  position: absolute;
+  top: calc(14px + env(safe-area-inset-top, 0px));
+  right: 14px;
+  background: rgba(255,255,255,0.12);
+  color: #fff;
+}
+
+.lightbox-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(255,255,255,0.12);
+  color: #fff;
+  width: 40px;
+  height: 40px;
+}
+
+.lightbox-prev {
+  left: 14px;
+}
+
+.lightbox-next {
+  right: 14px;
+}
+
+.lightbox-dots {
+  position: absolute;
+  bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+}
+
+.lightbox-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.4);
+}
+
+.lightbox-dot.active {
+  background: #fff;
 }
 
 .detail-description {

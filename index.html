@@ -105,7 +105,7 @@
       <div class="ph" id="detailPh">
         <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M4 19h16M6 19V7a2 2 0 012-2h8a2 2 0 012 2v12M9 11h6M9 15h6"/></svg>
       </div>
-      <img id="detailImg" style="display:none;">
+      <img id="detailImg" style="display:none;" onclick="event.stopPropagation(); openLightbox(currentRecipeId, 0)">
       <div class="scrim"></div>
       <div class="topnav">
         <button class="icon-btn" onclick="goHome()">
@@ -652,6 +652,21 @@
   </div>
 
   <div class="toast" id="toast"></div>
+
+  <!-- PHOTO LIGHTBOX -->
+  <div class="lightbox" id="photoLightbox" onclick="if(event.target===this) closeLightbox()">
+    <button class="icon-btn lightbox-close" onclick="closeLightbox()" title="Sluiten">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    </button>
+    <button class="icon-btn lightbox-nav lightbox-prev" onclick="event.stopPropagation(); lightboxNav(-1)" title="Vorige">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <img id="lightboxImg" onclick="event.stopPropagation();">
+    <button class="icon-btn lightbox-nav lightbox-next" onclick="event.stopPropagation(); lightboxNav(1)" title="Volgende">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+    </button>
+    <div class="lightbox-dots" id="lightboxDots"></div>
+  </div>
 
   <!-- QUICK ADD TO PLANNER -->
   <div class="planner-quick-menu" id="plannerQuickMenu">

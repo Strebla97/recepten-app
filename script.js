@@ -1486,9 +1486,10 @@ function renderDetail() {
   extraGallery.innerHTML = '';
   if (r.extraPhotos && r.extraPhotos.length) {
     extraGallery.style.display = 'flex';
-    r.extraPhotos.forEach(src => {
+    r.extraPhotos.forEach((src, i) => {
       const img = document.createElement('img');
       img.src = src;
+      img.onclick = (e) => { e.stopPropagation(); openLightbox(r.id, i + 1); };
       extraGallery.appendChild(img);
     });
   } else {
@@ -1612,6 +1613,59 @@ function addToShoppingList() {
 }
 
 function editCurrent() { openForm(currentRecipeId); }
+
+/* ---------------- Photo lightbox ---------------- */
+let lightboxPhotos = [];
+let lightboxIndex = 0;
+
+function openLightbox(recipeId, index) {
+  const r = recipes.find(x => x.id === recipeId);
+  if (!r) return;
+  lightboxPhotos = [r.photo, ...(r.extraPhotos || [])].filter(Boolean);
+  if (lightboxPhotos.length === 0) return;
+  lightboxIndex = Math.max(0, Math.min(index, lightboxPhotos.length - 1));
+  renderLightbox();
+  document.getElementById('photoLightbox').classList.add('open');
+}
+
+function closeLightbox() {
+  document.getElementById('photoLightbox').classList.remove('open');
+}
+
+function lightboxNav(delta) {
+  if (lightboxPhotos.length < 2) return;
+  lightboxIndex = (lightboxIndex + delta + lightboxPhotos.length) % lightboxPhotos.length;
+  renderLightbox();
+}
+
+function renderLightbox() {
+  document.getElementById('lightboxImg').src = lightboxPhotos[lightboxIndex];
+  const multi = lightboxPhotos.length > 1;
+  document.querySelector('.lightbox-prev').style.display = multi ? 'flex' : 'none';
+  document.querySelector('.lightbox-next').style.display = multi ? 'flex' : 'none';
+  const dots = document.getElementById('lightboxDots');
+  dots.innerHTML = multi
+    ? lightboxPhotos.map((_, i) => `<span class="lightbox-dot${i === lightboxIndex ? ' active' : ''}"></span>`).join('')
+    : '';
+}
+
+(function initLightboxGestures() {
+  const box = document.getElementById('photoLightbox');
+  let startX = null;
+  box.addEventListener('touchstart', (e) => { startX = e.touches[0].clientX; }, { passive: true });
+  box.addEventListener('touchend', (e) => {
+    if (startX === null) return;
+    const dx = e.changedTouches[0].clientX - startX;
+    startX = null;
+    if (Math.abs(dx) > 40) lightboxNav(dx < 0 ? 1 : -1);
+  }, { passive: true });
+  document.addEventListener('keydown', (e) => {
+    if (!box.classList.contains('open')) return;
+    if (e.key === 'Escape') closeLightbox();
+    if (e.key === 'ArrowLeft') lightboxNav(-1);
+    if (e.key === 'ArrowRight') lightboxNav(1);
+  });
+})();
 
 function toggleFavorite() {
   const r = recipes.find(x => x.id === currentRecipeId);
