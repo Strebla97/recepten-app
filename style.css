@@ -254,6 +254,25 @@ img {
   color: #fff;
 }
 
+.chip-star {
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.chip-star.active {
+  background: #F5C518;
+  border-color: #F5C518;
+  color: #fff;
+}
+
+.chip-star.active polygon {
+  fill: #fff;
+}
+
 /* ---------- Views ---------- */
 
 .view {
@@ -842,6 +861,19 @@ img {
 .detail-hero .topnav .icon-btn {
   background: rgba(0,0,0,0.35);
   color: #fff;
+}
+
+.topnav-right {
+  display: flex;
+  gap: 8px;
+}
+
+.icon-btn.favorited {
+  color: #F5C518;
+}
+
+.icon-btn.favorited polygon {
+  fill: #F5C518;
 }
 
 .detail-hero .heading {

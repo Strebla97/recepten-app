@@ -1249,6 +1249,9 @@ function renderFilterMenu() {
   });
 }
 
+const FAVORITES_FILTER = '__favorites__';
+const STAR_POLYGON_POINTS = '12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2';
+
 function renderChips() {
   const wrap = document.getElementById('categoryChips');
   const used = new Set(recipes.map(r => r.category).filter(Boolean));
@@ -1256,6 +1259,12 @@ function renderChips() {
   used.forEach(c => { if (!orderedUsed.includes(c)) orderedUsed.push(c); });
   const cats = ['Alles', ...orderedUsed];
   wrap.innerHTML = '';
+  const favChip = document.createElement('button');
+  favChip.className = 'chip chip-star' + (activeCategory === FAVORITES_FILTER ? ' active' : '');
+  favChip.title = 'Favorieten';
+  favChip.innerHTML = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="${STAR_POLYGON_POINTS}"/></svg>`;
+  favChip.onclick = () => { activeCategory = FAVORITES_FILTER; renderHome(); };
+  wrap.appendChild(favChip);
   cats.forEach(c => {
     const b = document.createElement('button');
     b.className = 'chip' + (activeCategory === c ? ' active' : '');
@@ -1369,7 +1378,10 @@ function renderHome() {
   renderFilterMenu();
   const grid = document.getElementById('recipeGrid');
   const empty = document.getElementById('emptyState');
-  let list = recipes.filter(r => (activeCategory === 'Alles' || r.category === activeCategory) && matchesSearch(r, searchTerm) && matchesLabelFilters(r));
+  let list = recipes.filter(r => {
+    const matchesCategory = activeCategory === 'Alles' || (activeCategory === FAVORITES_FILTER ? !!r.favorite : r.category === activeCategory);
+    return matchesCategory && matchesSearch(r, searchTerm) && matchesLabelFilters(r);
+  });
   grid.innerHTML = '';
   grid.className = viewMode === 'list' ? 'recipe-list' : 'recipe-grid';
   if (recipes.length === 0) {
@@ -1433,6 +1445,7 @@ function renderDetail() {
   if (!r) return;
   updateCookModeUI();
   updateNutritionUI();
+  document.getElementById('detailFavoriteBtn').classList.toggle('favorited', !!r.favorite);
   document.getElementById('detailName').textContent = r.name;
   document.getElementById('detailTime').textContent = r.time ? r.time + ' min' : '—';
   const img = document.getElementById('detailImg');
@@ -1588,6 +1601,16 @@ function addToShoppingList() {
 }
 
 function editCurrent() { openForm(currentRecipeId); }
+
+function toggleFavorite() {
+  const r = recipes.find(x => x.id === currentRecipeId);
+  if (!r) return;
+  r.favorite = !r.favorite;
+  saveRecipes();
+  document.getElementById('detailFavoriteBtn').classList.toggle('favorited', r.favorite);
+  showToast(r.favorite ? 'Toegevoegd aan favorieten' : 'Verwijderd uit favorieten');
+  if (db) { const { id, ...data } = r; db.collection('recipes').doc(id).set(data).catch(() => {}); }
+}
 
 async function deleteRecipeById(id) {
   const ok = await customConfirm('Dit recept verwijderen?', 'Verwijderen');
