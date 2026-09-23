@@ -301,13 +301,12 @@ img {
 
 .dropdown-wrap {
   position: relative;
-  z-index: 31;
 }
 
 .dropdown-backdrop {
   position: fixed;
   inset: 0;
-  z-index: 29;
+  z-index: 15;
   display: none;
 }
 
