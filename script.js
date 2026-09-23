@@ -469,6 +469,7 @@ let editingId = null;
 function switchView(name) {
   if (name !== 'detail' && cookingMode) disableCookingMode();
   if (name !== 'planner' && plannerSelectMode) togglePlannerSelectMode();
+  if (name !== 'shop' && shopSelectMode) toggleShopSelectMode();
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   document.getElementById('view-' + name).classList.add('active');
   currentView = name;
@@ -2286,6 +2287,8 @@ let activeShopStoreId = safeGet('rb_active_shopstore', null);
 let shopSortMode = safeGet('rb_shop_sortmode', 'category');
 let editingShopStoreId = null;
 let activeShopCategory = 'Alles';
+let shopSelectMode = false;
+let shopSelectedIds = new Set();
 
 function saveShopCategoryOrder() { safeSet('rb_shopcatorder', shopCategoryOrder); syncSettingsToCloud(); }
 function saveShopStores() { safeSet('rb_shopstores', shopStores); syncSettingsToCloud(); }
@@ -2315,11 +2318,24 @@ function matchShopCategory(name) {
 
 function buildShopRow(item) {
   const li = document.createElement('li');
-  li.className = item.checked ? 'done' : '';
   const amtStr = fmtShopAmount(item.amount, item.unit);
+  const checkSvg = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>';
+  if (shopSelectMode) {
+    const selected = shopSelectedIds.has(item.id);
+    li.className = 'selectable' + (selected ? ' selected' : '');
+    li.onclick = () => toggleShopItemSelected(item.id);
+    li.innerHTML = `
+      <button class="shop-check ${selected ? 'checked' : ''}" onclick="event.stopPropagation(); toggleShopItemSelected('${item.id}')">
+        ${selected ? checkSvg : ''}
+      </button>
+      <span class="shop-item-name">${item.name}</span>
+      <span class="shop-item-amt">${amtStr}</span>`;
+    return li;
+  }
+  li.className = item.checked ? 'done' : '';
   li.innerHTML = `
     <button class="shop-check ${item.checked ? 'checked' : ''}" onclick="toggleShopItem('${item.id}')">
-      ${item.checked ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>' : ''}
+      ${item.checked ? checkSvg : ''}
     </button>
     <span class="shop-item-name">${item.name}</span>
     <span class="shop-item-amt">${amtStr}</span>`;
@@ -2545,15 +2561,6 @@ function toggleShopItem(id) {
   if (db) { const { id: _id, ...data } = item; db.collection('shopping').doc(id).set(data).catch(() => {}); }
 }
 
-function clearCheckedShopping() {
-  if (!shoppingList.some(x => x.checked)) return;
-  pushUndo('afgevinkte items gewist', 'shopping', cloneShopping());
-  const removed = shoppingList.filter(x => x.checked);
-  shoppingList = shoppingList.filter(x => !x.checked);
-  saveShopping(); renderShop(); updateShopBadge();
-  if (db) removed.forEach(item => db.collection('shopping').doc(item.id).delete().catch(() => {}));
-}
-
 async function clearAllShopping() {
   if (shoppingList.length === 0) return;
   const ok = await customConfirm('Hele boodschappenlijst wissen?', 'Wissen');
@@ -2561,8 +2568,59 @@ async function clearAllShopping() {
   pushUndo('boodschappenlijst gewist', 'shopping', cloneShopping());
   const removed = shoppingList;
   shoppingList = [];
-  saveShopping(); renderShop(); updateShopBadge();
+  shopSelectedIds.clear();
+  saveShopping(); updateShopBadge();
+  if (shopSelectMode) toggleShopSelectMode(); else renderShop();
   if (db) removed.forEach(item => db.collection('shopping').doc(item.id).delete().catch(() => {}));
+}
+
+function toggleShopSelectMode() {
+  shopSelectMode = !shopSelectMode;
+  shopSelectedIds.clear();
+  document.getElementById('shopSelectToggleBtn').classList.toggle('active', shopSelectMode);
+  document.getElementById('shopSelectToolbar').classList.toggle('open', shopSelectMode);
+  updateShopSelectUI();
+  renderShop();
+}
+
+function toggleShopItemSelected(id) {
+  if (shopSelectedIds.has(id)) shopSelectedIds.delete(id);
+  else shopSelectedIds.add(id);
+  updateShopSelectUI();
+  renderShop();
+}
+
+function selectAllShopItems() {
+  const visibleIds = (activeShopCategory === 'Alles'
+    ? shoppingList
+    : shoppingList.filter(item => matchShopCategory(item.name) === activeShopCategory)
+  ).map(item => item.id);
+  const allSelected = visibleIds.length > 0 && visibleIds.every(id => shopSelectedIds.has(id));
+  if (allSelected) {
+    shopSelectedIds.clear();
+  } else {
+    visibleIds.forEach(id => shopSelectedIds.add(id));
+  }
+  updateShopSelectUI();
+  renderShop();
+}
+
+function updateShopSelectUI() {
+  const deleteBtn = document.getElementById('shopDeleteSelectionBtn');
+  if (deleteBtn) deleteBtn.disabled = shopSelectedIds.size === 0;
+}
+
+function deleteSelectedShopItems() {
+  if (shopSelectedIds.size === 0) return;
+  pushUndo('items verwijderd', 'shopping', cloneShopping());
+  const removed = shoppingList.filter(item => shopSelectedIds.has(item.id));
+  shoppingList = shoppingList.filter(item => !shopSelectedIds.has(item.id));
+  shopSelectedIds.clear();
+  saveShopping(); updateShopBadge();
+  if (shoppingList.length === 0) toggleShopSelectMode();
+  else { updateShopSelectUI(); renderShop(); }
+  if (db) removed.forEach(item => db.collection('shopping').doc(item.id).delete().catch(() => {}));
+  showToast('Verwijderd uit boodschappenlijst');
 }
 
 function updateShopBadge() {

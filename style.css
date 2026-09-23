@@ -2024,38 +2024,19 @@ img {
 
 /* ---------- Shopping list ---------- */
 
-.shop-header {
-  padding: 18px 20px 6px;
-}
-
-.shop-header-row {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.shop-header-actions {
-  flex: none;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
 .shop-chips-row {
-  margin: 0 0 12px;
-  padding: 0 20px;
+  margin-bottom: 0;
 }
 
-.shop-header h2 {
-  margin: 0 0 4px;
-  font-size: 24px;
+.shop-list li.selectable {
+  cursor: pointer;
 }
 
-.shop-header p {
-  margin: 0;
-  color: var(--ink-soft);
-  font-size: 13.5px;
+.shop-list li.selected {
+  background: var(--green-soft);
+  border-radius: 8px;
+  margin: 0 -8px;
+  padding: 12px 8px;
 }
 
 .shop-list {
@@ -2126,16 +2107,6 @@ img {
   margin-top: 15vh;
   color: var(--ink-soft);
   padding: 0 30px;
-}
-
-.shop-actions {
-  display: flex;
-  gap: 10px;
-  padding: 0 20px 14px;
-}
-
-.shop-actions button {
-  flex: 1;
 }
 
 /* ---------- Planner ---------- */
