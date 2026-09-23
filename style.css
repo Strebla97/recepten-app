@@ -1157,21 +1157,21 @@ img {
 }
 
 .extra-meta-pill.difficulty-easy {
-  background: var(--green-soft);
-  border-color: var(--green-soft);
-  color: var(--green-dark);
+  background: var(--green);
+  border-color: var(--green);
+  color: #fff;
 }
 
 .extra-meta-pill.difficulty-medium {
-  background: var(--gold-soft);
-  border-color: var(--gold-soft);
-  color: var(--orange);
+  background: var(--orange);
+  border-color: var(--orange);
+  color: #fff;
 }
 
 .extra-meta-pill.difficulty-hard {
-  background: var(--brick-soft);
-  border-color: var(--brick-soft);
-  color: var(--brick);
+  background: var(--brick);
+  border-color: var(--brick);
+  color: #fff;
 }
 
 .detail-meta-chips .tag-chip-view {
