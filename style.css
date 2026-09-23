@@ -481,14 +481,15 @@ img {
 
 .label-reset-btn {
   flex: none;
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  background: #e0574c;
-  color: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  padding: 3px 12px;
+  border-radius: 999px;
+  background: none;
+  border: 1.5px solid #e0574c;
+  color: #e0574c;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
 .dropdown-divider {

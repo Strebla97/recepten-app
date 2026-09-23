@@ -69,7 +69,10 @@
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16M7 12h10M10 19h4"/></svg>
             </button>
             <div class="dropdown-menu dropdown-menu-wide" id="filterMenu">
-              <div class="dropdown-section-label">Weergave</div>
+              <div class="dropdown-section-label dropdown-section-label-row">
+                Weergave
+                <button class="label-reset-btn" id="labelResetBtn" onclick="event.stopPropagation(); resetLabelFilters()" title="Labelfilters wissen" style="display:none;">Reset</button>
+              </div>
               <button class="dropdown-item" data-mode="grid" onclick="setViewMode('grid')">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
                 Raster
@@ -99,12 +102,7 @@
                 </span>
               </button>
               <div class="dropdown-divider"></div>
-              <div class="dropdown-section-label dropdown-section-label-row">
-                Labels
-                <button class="label-reset-btn" id="labelResetBtn" onclick="event.stopPropagation(); resetLabelFilters()" title="Labelfilters wissen" style="display:none;">
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
-                </button>
-              </div>
+              <div class="dropdown-section-label">Labels</div>
               <div class="filter-label-chips" id="filterLabelChips"></div>
             </div>
           </div>
