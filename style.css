@@ -2217,7 +2217,11 @@ img {
 
 .shop-manual-row .shop-manual-amount {
   flex: none;
-  width: 90px;
+  width: 64px;
+}
+
+.shop-manual-row .unit-select {
+  width: 84px;
 }
 
 .shop-list {

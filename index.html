@@ -364,7 +364,8 @@
       <button class="planner-pick-custom-toggle" id="shopManualToggle" onclick="toggleShopManualInput()">+ Zelf een ingrediënt invoeren</button>
       <div class="planner-pick-custom shop-manual-row" id="shopManualRow" style="display:none;">
         <input type="text" id="shopManualInput" placeholder="Bijv. Appel" onkeydown="if(event.key==='Enter'){event.preventDefault();submitShopManualItem();}">
-        <input type="text" id="shopManualAmountInput" class="shop-manual-amount" placeholder="Aantal" onkeydown="if(event.key==='Enter'){event.preventDefault();submitShopManualItem();}">
+        <input type="number" step="any" id="shopManualAmountInput" class="shop-manual-amount" placeholder="Aantal" onkeydown="if(event.key==='Enter'){event.preventDefault();submitShopManualItem();}">
+        <div class="unit-select-slot" id="shopManualUnitSlot"></div>
         <button class="planner-pick-custom-add" onclick="submitShopManualItem()" title="Toevoegen" aria-label="Toevoegen">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
         </button>
@@ -422,7 +423,8 @@
       <button class="planner-pick-custom-toggle" id="stockManualToggle" onclick="toggleStockManualInput()">+ Zelf een product invoeren</button>
       <div class="planner-pick-custom shop-manual-row" id="stockManualRow" style="display:none;">
         <input type="text" id="stockManualInput" placeholder="Bijv. Appel" onkeydown="if(event.key==='Enter'){event.preventDefault();submitStockManualItem();}">
-        <input type="text" id="stockManualAmountInput" class="shop-manual-amount" placeholder="Aantal" onkeydown="if(event.key==='Enter'){event.preventDefault();submitStockManualItem();}">
+        <input type="number" step="any" id="stockManualAmountInput" class="shop-manual-amount" placeholder="Aantal" onkeydown="if(event.key==='Enter'){event.preventDefault();submitStockManualItem();}">
+        <div class="unit-select-slot" id="stockManualUnitSlot"></div>
         <button class="planner-pick-custom-add" onclick="submitStockManualItem()" title="Toevoegen" aria-label="Toevoegen">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
         </button>

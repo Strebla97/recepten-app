@@ -2065,6 +2065,16 @@ function buildUnitSelect(selectedUnit) {
   return wrap;
 }
 
+// Clears a unit-select back to its placeholder ("—") state after a form is
+// submitted/reset, without rebuilding the whole dropdown.
+function resetUnitSelect(wrap) {
+  if (!wrap) return;
+  wrap.dataset.value = '';
+  const label = wrap.querySelector('.unit-select-label');
+  if (label) label.textContent = '';
+  wrap.querySelectorAll('.unit-select-option').forEach(o => o.classList.toggle('active', o.dataset.value === ''));
+}
+
 function addIngRow(data) {
   ingRowCount++;
   const wrap = document.getElementById('ingRows');
@@ -2818,16 +2828,19 @@ function toggleShopManualInput() {
 function submitShopManualItem() {
   const input = document.getElementById('shopManualInput');
   const amountInput = document.getElementById('shopManualAmountInput');
+  const unitSelect = document.getElementById('shopManualUnitSelect');
   const name = input.value.trim();
   if (!name) { input.focus(); return; }
-  const amountText = amountInput.value.trim();
-  const item = { id: uid(), name, amount: null, unit: amountText || null, checked: false };
+  const amount = amountInput.value.trim() ? parseFloat(amountInput.value) : null;
+  const unit = (unitSelect && unitSelect.dataset.value) || null;
+  const item = { id: uid(), name, amount, unit, checked: false };
   shoppingList.push(item);
   saveShopping();
   updateShopBadge();
   renderShop();
   input.value = '';
   amountInput.value = '';
+  resetUnitSelect(unitSelect);
   document.getElementById('shopManualRow').style.display = 'none';
   document.getElementById('shopManualToggle').style.display = 'block';
   if (db) { const { id, ...data } = item; db.collection('shopping').doc(id).set(data).catch(() => {}); }
@@ -3078,15 +3091,18 @@ function toggleStockManualInput() {
 function submitStockManualItem() {
   const input = document.getElementById('stockManualInput');
   const amountInput = document.getElementById('stockManualAmountInput');
+  const unitSelect = document.getElementById('stockManualUnitSelect');
   const name = input.value.trim();
   if (!name) { input.focus(); return; }
-  const amountText = amountInput.value.trim();
-  const item = { id: uid(), name, amount: null, unit: amountText || null };
+  const amount = amountInput.value.trim() ? parseFloat(amountInput.value) : null;
+  const unit = (unitSelect && unitSelect.dataset.value) || null;
+  const item = { id: uid(), name, amount, unit };
   stockList.push(item);
   saveStock();
   renderStock();
   input.value = '';
   amountInput.value = '';
+  resetUnitSelect(unitSelect);
   document.getElementById('stockManualRow').style.display = 'none';
   document.getElementById('stockManualToggle').style.display = 'block';
   if (db) { const { id, ...data } = item; db.collection('stock').doc(id).set(data).catch(() => {}); }
@@ -3656,4 +3672,17 @@ makeDragReorder('shopStoreSettingsRows', () => {
 })();
 
 /* ---------------- Init ---------------- */
+
+// Give the shop/stock manual-add forms the same unit dropdown used when
+// editing a recipe's ingredients, instead of a bare free-text field.
+(function initManualAddUnitSelects() {
+  const shopUnitSelect = buildUnitSelect('');
+  shopUnitSelect.id = 'shopManualUnitSelect';
+  document.getElementById('shopManualUnitSlot').replaceWith(shopUnitSelect);
+
+  const stockUnitSelect = buildUnitSelect('');
+  stockUnitSelect.id = 'stockManualUnitSelect';
+  document.getElementById('stockManualUnitSlot').replaceWith(stockUnitSelect);
+})();
+
 initStorage();
