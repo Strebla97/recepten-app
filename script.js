@@ -2807,19 +2807,6 @@ function toggleShopItem(id) {
   if (db) { const { id: _id, ...data } = item; db.collection('shopping').doc(id).set(data).catch(() => {}); }
 }
 
-async function clearAllShopping() {
-  if (shoppingList.length === 0) return;
-  const ok = await customConfirm('Boodschappenlijst wissen?', 'Wissen');
-  if (!ok) return;
-  pushUndo('boodschappenlijst gewist', 'shopping', cloneShopping());
-  const removed = shoppingList;
-  shoppingList = [];
-  shopSelectedIds.clear();
-  saveShopping(); updateShopBadge();
-  if (shopSelectMode) toggleShopSelectMode(); else renderShop();
-  if (db) removed.forEach(item => db.collection('shopping').doc(item.id).delete().catch(() => {}));
-}
-
 function toggleShopManualInput() {
   const row = document.getElementById('shopManualRow');
   const toggle = document.getElementById('shopManualToggle');
