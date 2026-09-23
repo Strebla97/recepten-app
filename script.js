@@ -468,6 +468,7 @@ let editingId = null;
 
 function switchView(name) {
   if (name !== 'detail' && cookingMode) disableCookingMode();
+  if (name !== 'planner' && plannerSelectMode) togglePlannerSelectMode();
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   document.getElementById('view-' + name).classList.add('active');
   currentView = name;
