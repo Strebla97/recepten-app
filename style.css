@@ -76,6 +76,7 @@ html, body {
 
 * {
   box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
 }
 
 h1, h2, h3, .serif {
@@ -869,7 +870,7 @@ img {
   bottom: calc(16px + env(safe-area-inset-bottom, 0px));
   width: calc(100% - 40px);
   max-width: 520px;
-  background: var(--ink);
+  background: #2B2A22;
   border-radius: 999px;
   display: flex;
   align-items: center;
@@ -877,9 +878,6 @@ img {
   padding: 8px 14px;
   box-shadow: 0 8px 24px var(--shadow);
   z-index: 30;
-}
-
-:root[data-theme="dark"] .tabbar, @media (prefers-color-scheme: dark) {
 }
 
 .tab-group {
@@ -895,7 +893,7 @@ img {
   align-items: center;
   justify-content: center;
   gap: 2px;
-  color: var(--paper);
+  color: #F1EEE2;
   opacity: 0.55;
   min-height: 44px;
   padding: 6px 12px;
