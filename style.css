@@ -183,6 +183,9 @@ img {
 
 #undoBtn {
   border: 1.5px solid var(--card-border);
+  width: 32px;
+  height: 32px;
+  padding: 0;
 }
 
 
