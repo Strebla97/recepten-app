@@ -1741,7 +1741,8 @@ function renderDetail() {
   }
   if (r.difficulty) {
     const span = document.createElement('span');
-    span.className = 'extra-meta-pill';
+    const diffClass = { Makkelijk: 'difficulty-easy', Gemiddeld: 'difficulty-medium', Moeilijk: 'difficulty-hard' }[r.difficulty] || '';
+    span.className = 'extra-meta-pill' + (diffClass ? ' ' + diffClass : '');
     span.textContent = r.difficulty;
     metaChips.appendChild(span);
   }

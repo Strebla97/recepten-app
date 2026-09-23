@@ -10,6 +10,8 @@
   --gold-soft: #F1E4BC;
   --brick: #A63A32;
   --brick-soft: #F3DFDB;
+  --orange: #B5790A;
+  --tan: #A88C5D;
   --card-border: #E1DCC8;
   --shadow: rgba(43, 42, 34, 0.10);
   color-scheme: light;
@@ -31,6 +33,8 @@
     --gold-soft: #362E17;
     --brick: #DE7A70;
     --brick-soft: #3A211F;
+    --orange: #F0A93F;
+    --tan: #B99C6B;
     --card-border: #37342A;
     --shadow: rgba(0, 0, 0, 0.35);
     color-scheme: dark;
@@ -49,6 +53,8 @@
   --gold-soft: #362E17;
   --brick: #DE7A70;
   --brick-soft: #3A211F;
+  --orange: #F0A93F;
+  --tan: #B99C6B;
   --card-border: #37342A;
   --shadow: rgba(0, 0, 0, 0.35);
   color-scheme: dark;
@@ -1135,9 +1141,9 @@ img {
   line-height: normal;
   padding: 4px 11px;
   border-radius: 999px;
-  background: var(--gold-soft);
-  border: 1px solid var(--gold-soft);
-  color: var(--ink);
+  background: var(--tan);
+  border: 1px solid var(--tan);
+  color: #fff;
 }
 
 .extra-meta-pill {
@@ -1147,6 +1153,24 @@ img {
   border: 1px solid var(--brick-soft);
   font-size: 12.5px;
   font-weight: 600;
+  color: var(--brick);
+}
+
+.extra-meta-pill.difficulty-easy {
+  background: var(--green-soft);
+  border-color: var(--green-soft);
+  color: var(--green-dark);
+}
+
+.extra-meta-pill.difficulty-medium {
+  background: var(--gold-soft);
+  border-color: var(--gold-soft);
+  color: var(--orange);
+}
+
+.extra-meta-pill.difficulty-hard {
+  background: var(--brick-soft);
+  border-color: var(--brick-soft);
   color: var(--brick);
 }
 
