@@ -114,6 +114,7 @@ img {
 }
 
 .topbar-row {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -127,11 +128,16 @@ img {
 }
 
 .brand {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
   font-size: 26px;
   font-weight: 600;
   letter-spacing: -0.01em;
   color: var(--ink);
   margin: 0;
+  white-space: nowrap;
 }
 
 .brand em {
@@ -676,15 +682,20 @@ img {
 }
 
 .recipe-card-selectable.selected {
-  box-shadow: 0 0 0 2px var(--green) inset;
+  border-color: var(--green);
+  border-width: 2px;
 }
 
 .recipe-row-selectable {
   gap: 10px;
+  border-radius: 10px;
+  padding: 12px 8px;
+  margin: 0 -8px;
 }
 
 .recipe-row-selectable.selected {
   background: var(--green-soft);
+  border-bottom-color: transparent;
 }
 
 .recipe-select-check-inline {
