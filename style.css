@@ -863,6 +863,14 @@ img {
   color: #fff;
 }
 
+.hero-more-btn {
+  position: absolute;
+  bottom: 14px;
+  right: 14px;
+  background: rgba(0,0,0,0.35);
+  color: #fff;
+}
+
 .topnav-right {
   display: flex;
   gap: 8px;
@@ -890,38 +898,6 @@ img {
 
 .heading-text {
   min-width: 0;
-}
-
-.heading-actions {
-  flex: none;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.planner-fab {
-  width: 40px;
-  height: 40px;
-  background: rgba(255,255,255,0.16);
-  box-shadow: 0 6px 16px rgba(0,0,0,0.35), 0 0 0 3px rgba(255,255,255,0.14);
-}
-
-.cart-fab {
-  flex: none;
-  width: 46px;
-  height: 46px;
-  border-radius: 50%;
-  border: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(155deg, var(--green) 0%, var(--green-dark) 100%);
-  color: #fff;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35), 0 0 0 3px rgba(255, 255, 255, 0.18);
-}
-
-.cart-fab:active {
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.35), 0 0 0 3px rgba(255, 255, 255, 0.18);
 }
 
 .detail-hero h1 {

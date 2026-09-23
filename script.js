@@ -1028,11 +1028,15 @@ function pickPlannerQuickDay(key) {
 }
 
 let recipeMoreId = null;
+let recipeMoreUseCurrentServings = false;
 
-// The "..." menu on a recipe card/row combines the boodschappenlijst and
-// planner shortcuts that used to be two separate buttons.
-function openRecipeMoreMenu(recipeId, btn) {
+// The "..." menu on a recipe card/row/detail page combines the
+// boodschappenlijst and planner shortcuts that used to be separate buttons.
+// From the detail page, adding to the shopping list should respect whatever
+// serving size is currently shown there rather than always the base amount.
+function openRecipeMoreMenu(recipeId, btn, useCurrentServings) {
   recipeMoreId = recipeId;
+  recipeMoreUseCurrentServings = !!useCurrentServings;
   const menu = document.getElementById('recipeMoreMenu');
   positionFloatingMenu(menu, btn, 200);
   menu.classList.add('open');
@@ -1044,7 +1048,8 @@ function closeRecipeMoreMenu() {
 
 function recipeMoreAddToShopping() {
   if (!recipeMoreId) return;
-  addPlannerRecipeToShopping(recipeMoreId);
+  if (recipeMoreUseCurrentServings && recipeMoreId === currentRecipeId) addToShoppingList();
+  else addPlannerRecipeToShopping(recipeMoreId);
   closeRecipeMoreMenu();
 }
 
