@@ -803,7 +803,6 @@ img {
 
 .tab.active {
   opacity: 1;
-  background: rgba(255,255,255,0.12);
 }
 
 .tab.add {
