@@ -627,10 +627,10 @@ function nutritionGridHtml(data) {
   const ok = data.matched > 0;
   const items = [
     { icon: NUTRITION_ICONS.kcal, val: ok ? Math.round(data.kcal) : '-', lbl: 'kcal' },
-    { icon: NUTRITION_ICONS.protein, val: ok ? fmtNum(data.protein) + ' g' : '-', lbl: 'Eiwitten' },
-    { icon: NUTRITION_ICONS.carbs, val: ok ? fmtNum(data.carbs) + ' g' : '-', lbl: 'Koolhydraten' },
-    { icon: NUTRITION_ICONS.fat, val: ok ? fmtNum(data.fat) + ' g' : '-', lbl: 'Vetten' },
-    { icon: NUTRITION_ICONS.fiber, val: ok ? fmtNum(data.fiber) + ' g' : '-', lbl: 'Vezels' }
+    { icon: NUTRITION_ICONS.protein, val: ok ? Math.round(data.protein) + ' g' : '-', lbl: 'Eiwitten' },
+    { icon: NUTRITION_ICONS.carbs, val: ok ? Math.round(data.carbs) + ' g' : '-', lbl: 'Koolhydraten' },
+    { icon: NUTRITION_ICONS.fat, val: ok ? Math.round(data.fat) + ' g' : '-', lbl: 'Vetten' },
+    { icon: NUTRITION_ICONS.fiber, val: ok ? Math.round(data.fiber) + ' g' : '-', lbl: 'Vezels' }
   ];
   return `
     <div class="nutrition-grid">

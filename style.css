@@ -1277,6 +1277,7 @@ img {
   font-size: 14px;
   font-weight: 700;
   color: var(--ink);
+  white-space: nowrap;
 }
 
 .nutrition-item .lbl {
