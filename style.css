@@ -2232,7 +2232,6 @@ img {
   align-items: center;
   gap: 12px;
   padding: 12px 0;
-  border-bottom: 1px solid var(--card-border);
 }
 
 .shop-check {
@@ -2270,7 +2269,8 @@ img {
 
 .shop-list li.shop-group-header {
   display: block;
-  border-bottom: none;
+  border-top: 1px solid var(--card-border);
+  margin-top: 6px;
   padding: 16px 0 6px;
   font-size: 12px;
   font-weight: 700;
@@ -2280,6 +2280,8 @@ img {
 }
 
 .shop-list li.shop-group-header:first-child {
+  border-top: none;
+  margin-top: 0;
   padding-top: 0;
 }
 
