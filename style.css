@@ -632,6 +632,7 @@ img {
 
 .recipe-card {
   position: relative;
+  aspect-ratio: 1/1;
   background: var(--paper-alt);
   border: 1px solid var(--card-border);
   border-radius: 14px;
@@ -704,7 +705,8 @@ img {
 
 .recipe-card .thumb {
   width: 100%;
-  aspect-ratio: 1/1;
+  flex: 1;
+  min-height: 0;
   background: var(--green-soft);
   position: relative;
   overflow: hidden;
@@ -729,7 +731,7 @@ img {
 .recipe-card .body {
   position: relative;
   padding: 10px 12px 12px;
-  flex: 1;
+  flex: none;
   display: flex;
   flex-direction: column;
 }
