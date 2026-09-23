@@ -1291,7 +1291,7 @@ img {
 }
 
 .ingredient-list .ing-amt {
-  justify-self: end;
+  justify-self: start;
   align-self: center;
   display: inline-flex;
   align-items: baseline;
