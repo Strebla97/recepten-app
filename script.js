@@ -1048,14 +1048,16 @@ const SORT_GROUP_LABELS = {
   time: { asc: 'Kortste', desc: 'Langste' }
 };
 
-// Each sort row remembers its own direction independently (in sortDirections),
-// so switching to a different field doesn't reset the direction you'd
-// already picked for this one. Clicking a row flips *that field's* last
-// direction and makes it the active sort — like a sortable table header.
+// Each sort row remembers its own direction independently (in sortDirections).
+// Clicking an inactive row just activates it at its last-used direction;
+// clicking the already-active row is what flips that direction — like a
+// sortable table header where the first click picks the column and the
+// second click reverses it.
 function toggleSortDirection(group) {
   const def = SORT_GROUP_DEFAULT[group], alt = SORT_GROUP_ALT[group];
   const current = sortDirections[group] || def;
-  const next = current === def ? alt : def;
+  const isActive = sortMode === def || sortMode === alt;
+  const next = isActive ? (current === def ? alt : def) : current;
   sortDirections[group] = next;
   safeSet('rb_sortdirections', sortDirections);
   setSortMode(next);
