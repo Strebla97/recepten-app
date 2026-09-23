@@ -842,13 +842,20 @@ function togglePlannerItemSelected(dayKey, itemId) {
 
 function selectAllPlannerItems() {
   const days = getWeekDates(plannerAnchorDate, weekStart);
+  const allKeys = [];
   days.forEach(d => {
     const key = dateKey(d);
     (plannerData[key] || []).forEach(item => {
       const itemId = typeof item === 'string' ? item : item.id;
-      plannerSelectedKeys.add(key + '::' + itemId);
+      allKeys.push(key + '::' + itemId);
     });
   });
+  const allSelected = allKeys.length > 0 && allKeys.every(k => plannerSelectedKeys.has(k));
+  if (allSelected) {
+    plannerSelectedKeys.clear();
+  } else {
+    allKeys.forEach(k => plannerSelectedKeys.add(k));
+  }
   updatePlannerSelectUI();
   renderPlanner();
 }
